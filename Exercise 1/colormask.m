@@ -1,6 +1,4 @@
 function colormask = colormask(m,n,wbmults,align)
-% COLORMASK = wbmask(M,N,WBMULTS,ALIGN)
-%
 % Makes a white-balance multiplicative mask for an image of size m-by-n
 % with RGB while balance multipliers WBMULTS = [R_scale G_scale B_scale].
 % ALIGN is string indicating Bayer arrangement: ’rggb’,’gbrg’,’grbg’,’bggr’

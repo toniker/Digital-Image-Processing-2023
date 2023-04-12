@@ -1,7 +1,7 @@
 filename = "RawImage.tiff";
 [rawim, XYZ2Cam, wbcoeffs] = readdng(filename);
 
-bayertype = "BGGR";
+bayertype = "gbgr";
 method = "linear";
 [Csrgb, Clinear, Cxyz, Ccam] = dng2rgb(rawim, XYZ2Cam, wbcoeffs, bayertype, method);
 
