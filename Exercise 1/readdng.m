@@ -23,6 +23,7 @@ wbcoeffs = wbcoeffs / wbcoeffs(2); % green channel will be left unchanged
 XYZ2Cam = meta_info.ColorMatrix2;
 XYZ2Cam = reshape(XYZ2Cam, 3, 3)';
 
+rawim = rawim(y_origin:y_origin+height-1,x_origin:x_origin+width-1); % Resize array to fit within bounds described by metadata.
 rawim = double(rawim); % Cast array to doubles to keep floating point precision.
 rawim = rawim ./ (whitelevel - blacklevel); % Scale values to dynamic range of image.
 rawim = rawim + blacklevel; % Offset values to match the black level.
