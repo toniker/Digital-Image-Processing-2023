@@ -22,7 +22,7 @@ for i = 2:m-1
         elseif (mod(i,2) == 0 || mod(j, 2) == 0) % Green pixel
             J(i,j,:) = [(I(i-1,j)+I(i+1,j))/2, I(i,j), (I(i,j-1)+I(i,j+1))/2];
         else % Red pixel
-            J(i,j,:) = [I(i,j), (I(i-1,j)+I(i+1,j))/2, (I(i,j-1)+I(i,j+1))/2];
+            J(i,j,:) = [I(i,j), (I(i-1,j)+I(i+1,j))/2, (I(i,j-1)+I(i,j+1))];
         end
     end
 end
@@ -33,10 +33,10 @@ function J = internal_bggr_demosaic(I)
 J = zeros(m,n,3);
 for i = 2:m-1
     for j = 2:n-1
-        if mod(i+j,2) == 0 % Green pixel
-            J(i,j,:) = [(I(i-1,j)+I(i+1,j))/2, I(i,j), (I(i,j-1)+I(i,j+1))/2];
-        elseif mod(i,2) == 0 % Red pixel
+        if (mod(i,2) == 0 && mod(j, 2) == 0) % Red pixel
             J(i,j,:) = [I(i,j), (I(i-1,j)+I(i+1,j))/2, (I(i,j-1)+I(i,j+1))/2];
+        elseif (mod(i,2) == 0 || mod(j, 2) == 0) % Green pixel
+            J(i,j,:) = [(I(i-1,j)+I(i+1,j))/2, I(i,j), (I(i,j-1)+I(i,j+1))/2];
         else % Blue pixel
             J(i,j,:) = [(I(i,j-1)+I(i,j+1))/2, (I(i-1,j)+I(i+1,j))/2, I(i,j)];
         end
@@ -66,9 +66,9 @@ J = zeros(m,n,3);
 for i = 2:m-1
     for j = 2:n-1
         if mod(i+j,2) == 0 % Green pixel
-            J(i,j,:) = [I(i,j), (I(i-1,j)+I(i+1,j))/2, (I(i,j-1)+I(i,j+1))/2];
-        elseif mod(i,2) == 0 % Red pixel
             J(i,j,:) = [(I(i,j-1)+I(i,j+1))/2, I(i,j), (I(i-1,j)+I(i+1,j))/2];
+        elseif mod(j,2) == 0 % Red pixel
+            J(i,j,:) = [I(i,j), (I(i-1,j)+I(i+1,j))/2, (I(i,j-1)+I(i,j+1))/2];
         else % Blue pixel
             J(i,j,:) = [(I(i-1,j)+I(i+1,j))/2, (I(i,j-1)+I(i,j+1))/2, I(i,j)];
         end
