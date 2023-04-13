@@ -23,6 +23,13 @@ elseif (method == "nearest")
     end
 end
 
+% Demosaic
+customRGB = custom_demosaic(color_balanced_im, bayertype);
+montage(customRGB);
+% imshow(customRGB);
+temp = uint16(color_balanced_im/max(color_balanced_im(:))*2^16);
+builtinRGB = double(demosaic(temp,"rggb"))/2^16;
+montage([customRGB, builtinRGB]);
 % Color Space Transformation
 XYZ2RGB = [[+3.2406, -1.5372, -0.4986], [-0.9689, +1.8758, +0.0415], [+0.0557, -0.2040, +1.0570]];
 
