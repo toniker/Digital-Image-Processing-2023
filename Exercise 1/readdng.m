@@ -25,8 +25,8 @@ XYZ2Cam = reshape(XYZ2Cam, 3, 3)';
 
 rawim = rawim(y_origin:y_origin+height-1,x_origin:x_origin+width-1); % Resize array to fit within bounds described by metadata.
 rawim = double(rawim); % Cast array to doubles to keep floating point precision.
+rawim = rawim - blacklevel; % Offset values to match the black level.
 rawim = rawim ./ (whitelevel - blacklevel); % Scale values to dynamic range of image.
-rawim = rawim + blacklevel; % Offset values to match the black level.
 rawim = max(0,min(rawim,1)); % Clip maximum values beyond the maximum white level.
 
 % imshow(rawim);
