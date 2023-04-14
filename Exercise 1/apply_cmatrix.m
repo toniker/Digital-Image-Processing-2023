@@ -6,9 +6,11 @@ if size(image,3)~=3
     error('Apply cmatrix to RGB image only.')
 end
 
-r = color_matrix(1,1) * image(:,:,1)+color_matrix(1,2) * image(:,:,2) + color_matrix(1,3) * image(:,:,3);
-g = color_matrix(2,1) * image(:,:,1)+color_matrix(2,2) * image(:,:,2) + color_matrix(2,3) * image(:,:,3);
-b = color_matrix(3,1) * image(:,:,1)+color_matrix(3,2) * image(:,:,2) + color_matrix(3,3) * image(:,:,3);
+color_matrix = reshape(color_matrix, [3, 3]);
+
+r = color_matrix(1,1) * image(:,:,1) + color_matrix(1,2) * image(:,:,2) + color_matrix(1,3) * image(:,:,3);
+g = color_matrix(2,1) * image(:,:,1) + color_matrix(2,2) * image(:,:,2) + color_matrix(2,3) * image(:,:,3);
+b = color_matrix(3,1) * image(:,:,1) + color_matrix(3,2) * image(:,:,2) + color_matrix(3,3) * image(:,:,3);
 
 corrected = cat(3,r,g,b);
 end
