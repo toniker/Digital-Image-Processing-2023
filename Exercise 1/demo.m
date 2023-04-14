@@ -18,9 +18,10 @@ hold on
 [greenCounts, greenBins] = imhist(Csrgb(:,:,2));
 [blueCounts, blueBins] = imhist(Csrgb(:,:,3));
 
-stem(blueBins, blueCounts, ".-b")
-stem(greenBins, greenCounts, ".-g")
-stem(redBins, redCounts, ".-r")
+stem(blueBins, blueCounts, ".-b");
+stem(greenBins, greenCounts, ".-g");
+stem(redBins, redCounts, ".-r");
 
 hold off
 
+saveas(gcf, "histogram.jpg");
