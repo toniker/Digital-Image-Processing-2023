@@ -5,9 +5,6 @@ color_balanced_im = rawim .* mask;
 
 % Demosaic
 customRGB = custom_demosaic(color_balanced_im, bayertype);
-% image(customRGB * 2);
-temp = uint16(color_balanced_im/max(color_balanced_im(:))*2^16);
-builtinRGB = double(demosaic(temp,"rggb"))/2^16;
 
 % Interpolation
 %[rows, cols] = size(customRGB);
