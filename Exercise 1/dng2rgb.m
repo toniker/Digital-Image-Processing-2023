@@ -4,7 +4,7 @@ mask = colormask(size(rawim,1), size(rawim,2), wbcoeffs, bayertype);
 color_balanced_im = rawim .* mask;
 
 % Demosaic
-customRGB = custom_demosaic(color_balanced_im, bayertype);
+customRGB = custom_demosaic(color_balanced_im, bayertype, method);
 
 % Interpolation
 %[rows, cols] = size(customRGB);
