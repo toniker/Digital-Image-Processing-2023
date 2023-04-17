@@ -24,4 +24,4 @@ stem(redBins, redCounts, ".-r");
 
 hold off
 
-saveas(gcf, "histogram.jpg");
+saveas(gcf, method+"_"+bayertype+"_"+"histogram.jpg");
