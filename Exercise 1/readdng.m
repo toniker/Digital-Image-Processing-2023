@@ -2,7 +2,9 @@ function [rawim, XYZ2Cam, wbcoeffs] = readdng(filename)
 obj = Tiff(filename ,'r');
 
 offsets = getTag(obj, 'SubIFD');
+warning('off');
 setSubDirectory(obj, offsets(1));
+warning('on');
 rawim = read(obj);
 meta_info = imfinfo(filename);
 
