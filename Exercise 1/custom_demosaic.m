@@ -47,22 +47,6 @@ for i = 2:m-1
 end
 end
 
-function J = internal_nearest_rggb_demosaic(I)
-[m,n] = size(I);
-J = zeros(m,n,3);
-for i = 2:m-1
-    for j = 2:n-1
-        if (mod(i,2) == 0 && mod(j, 2) == 0) % Blue pixel
-            % J(i,j,:) = 
-        elseif (mod(i,2) == 0 || mod(j, 2) == 0) % Green pixel
-            % J(i,j,:) = 
-        else % Red pixel
-            % J(i,j,:) = 
-        end
-    end
-end
-end
-
 function J = internal_bilinear_bggr_demosaic(I)
 [m,n] = size(I);
 J = zeros(m,n,3);
@@ -74,22 +58,6 @@ for i = 2:m-1
             J(i,j,:) = [(I(i-1,j)+I(i+1,j))/2, I(i,j), (I(i,j-1)+I(i,j+1))/2];
         else % Blue pixel
             J(i,j,:) = [(I(i,j-1)+I(i,j+1))/2, (I(i-1,j)+I(i+1,j)+I(i,j-1)+I(i,j+1))/4, I(i,j)];
-        end
-    end
-end
-end
-
-function J = internal_nearest_bggr_demosaic(I)
-[m,n] = size(I);
-J = zeros(m,n,3);
-for i = 2:m-1
-    for j = 2:n-1
-        if (mod(i,2) == 0 && mod(j, 2) == 0) % Red pixel
-            % J(i,j,:) =
-        elseif (mod(i,2) == 0 || mod(j, 2) == 0) % Green pixel
-            % J(i,j,:) =
-        else % Blue pixel
-            % J(i,j,:) =
         end
     end
 end
@@ -111,22 +79,6 @@ for i = 2:m-1
 end
 end
 
-function J = internal_nearest_gbrg_demosaic(I)
-[m,n] = size(I);
-J = zeros(m,n,3);
-for i = 2:m-1
-    for j = 2:n-1
-        if mod(i+j,2) == 0 % Green pixel
-            % J(i,j,:) =
-        elseif mod(i,2) == 0 % Red pixel
-            % J(i,j,:) =
-        else % Blue pixel
-            % J(i,j,:) =
-        end
-    end
-end
-end
-
 function J = internal_bilinear_grbg_demosaic(I)
 [m,n] = size(I);
 J = zeros(m,n,3);
@@ -138,6 +90,54 @@ for i = 2:m-1
             J(i,j,:) = [I(i,j), (I(i-1,j)+I(i+1,j)+I(i,j-1)+I(i,j+1))/4, (I(i,j-1)+I(i,j+1))/2];
         else % Blue pixel
             J(i,j,:) = [(I(i-1,j)+I(i+1,j))/2, (I(i-1,j)+I(i+1,j)+I(i,j-1)+I(i,j+1))/4, I(i,j)];
+        end
+    end
+end
+end
+
+function J = internal_nearest_rggb_demosaic(I)
+[m,n] = size(I);
+J = zeros(m,n,3);
+for i = 2:m-1
+    for j = 2:n-1
+        if (mod(i,2) == 0 && mod(j, 2) == 0) % Blue pixel
+            % J(i,j,:) = 
+        elseif (mod(i,2) == 0 || mod(j, 2) == 0) % Green pixel
+            % J(i,j,:) = 
+        else % Red pixel
+            % J(i,j,:) = 
+        end
+    end
+end
+end
+
+function J = internal_nearest_bggr_demosaic(I)
+[m,n] = size(I);
+J = zeros(m,n,3);
+for i = 2:m-1
+    for j = 2:n-1
+        if (mod(i,2) == 0 && mod(j, 2) == 0) % Red pixel
+            % J(i,j,:) =
+        elseif (mod(i,2) == 0 || mod(j, 2) == 0) % Green pixel
+            % J(i,j,:) =
+        else % Blue pixel
+            % J(i,j,:) =
+        end
+    end
+end
+end
+
+function J = internal_nearest_gbrg_demosaic(I)
+[m,n] = size(I);
+J = zeros(m,n,3);
+for i = 2:m-1
+    for j = 2:n-1
+        if mod(i+j,2) == 0 % Green pixel
+            % J(i,j,:) =
+        elseif mod(i,2) == 0 % Red pixel
+            % J(i,j,:) =
+        else % Blue pixel
+            % J(i,j,:) =
         end
     end
 end
