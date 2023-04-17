@@ -1,5 +1,5 @@
 function RGB = custom_demosaic(input_image, bayertype)
-RGB = "invalid bayertype";
+RGB = 0; %#ok<NASGU>
 switch bayertype
     case "bggr"
         RGB = internal_bggr_demosaic(input_image);
@@ -9,6 +9,8 @@ switch bayertype
         RGB = internal_grbg_demosaic(input_image);
     case "rggb"
         RGB = internal_rggb_demosaic(input_image);
+    otherwise
+        error("Invalid bayertype");
 end
 end
 
