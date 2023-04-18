@@ -41,7 +41,7 @@ gamma = 3/4;
 for i = 3:m-2
     for j = 3:n-2
         if (mod(i,2) == 0 && mod(j, 2) == 0) % Blue pixel
-            green_pixel = I(i-1,j)+I(i+1,j)+I(i,j-1)+I(i,j+1)/4 + beta * (I(i,j) - 1/4 * (I(i,j-2)+I(i,j+2)+I(i-2,j)+I(i+2,j)));
+            green_pixel = (I(i-1,j)+I(i+1,j)+I(i,j-1)+I(i,j+1))/4 + beta * (I(i,j) - 1/4 * (I(i,j-2)+I(i,j+2)+I(i-2,j)+I(i+2,j)));
             red_pixel = (I(i-1,j-1)+I(i+1,j+1)+I(i+1,j-1)+I(i-1,j+1))/4 + gamma * (6*I(i,j) + 2*(I(i-1,j-1)+I(i+1,j+1)+I(i+1,j-1)+I(i-1,j+1)) - 3/2*(I(i+2,j-2)+I(i+2,j+2)+I(i-2,j-2)+I(i-2,j+2)));
             J(i,j,:) = [red_pixel, green_pixel, I(i,j)];
         elseif (mod(i,2) == 0 || mod(j, 2) == 0) % Green pixel
