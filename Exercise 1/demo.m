@@ -25,6 +25,7 @@ stem(redBins, redCounts, ".-r");
 hold off
 
 saveas(gcf, method+"_"+bayertype+"_linear_histogram.jpg");
+clf;
 
 % Create RGB histograms for Csrgb
 hold on
@@ -40,6 +41,7 @@ stem(redBins, redCounts, ".-r");
 hold off
 
 saveas(gcf, method+"_"+bayertype+"_rgb_histogram.jpg");
+clf;
 
 % Create RGB histograms for XYZ
 hold on
@@ -55,6 +57,7 @@ stem(redBins, redCounts, ".-r");
 hold off
 
 saveas(gcf, method+"_"+bayertype+"_xyz_histogram.jpg");
+clf;
 
 % Create RGB histograms for Cam
 hold on
