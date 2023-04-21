@@ -16,19 +16,21 @@ RGB2XYZ = inv(XYZ2RGB);
 % Gamma Correction
 Csrgb = real(Clinear .^ (1/2.2));
 
-% Convert to Hue, Saturation, Value
-hsv = rgb2hsv(Csrgb);
+if (method ~= "gbrg")
+    % Convert to Hue, Saturation, Value
+    hsv = rgb2hsv(Csrgb);
 
-% Hue shift
-hsv(:,:,1) = hsv(:,:,1) * 1.15;
-% Saturation boost
-hsv(:,:,2) = hsv(:,:,2) * 1.65;
+    % Hue shift
+    hsv(:,:,1) = hsv(:,:,1) * 1.15;
+    % Saturation boost
+    hsv(:,:,2) = hsv(:,:,2) * 1.65;
 
-% Convert to RGB
-Csrgb = hsv2rgb(hsv);
+    % Convert to RGB
+    Csrgb = hsv2rgb(hsv);
+end
 
 % Color Space Transformation
-Cxyz = apply_cmatrix(Clinear, RGB2XYZ);
+Cxyz = apply_cmatrix(Csrgb, RGB2XYZ);
 Ccam = apply_cmatrix(Cxyz, XYZ2Cam);
 
 end
