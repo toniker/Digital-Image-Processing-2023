@@ -16,7 +16,7 @@ RGB2XYZ = inv(XYZ2RGB);
 % Gamma Correction
 Csrgb = real(Clinear .^ (1/2.2));
 
-if (method == "bggr" || method == "rggb")
+if (bayertype == "bggr" || bayertype == "rggb")
     % Convert to Hue, Saturation, Value
     hsv = rgb2hsv(Csrgb);
 
