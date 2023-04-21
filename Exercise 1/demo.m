@@ -6,12 +6,27 @@ method = "linear";
 [Csrgb, Clinear, Cxyz, Ccam] = dng2rgb(rawim, XYZ2Cam, wbcoeffs, bayertype, method);
 
 % Write image files from the dng2rgb output
-imwrite(Csrgb, "MHC_"+method+"_"+bayertype+"_"+"rgb.jpg");
-imwrite(Clinear, "MHC_"+method+"_"+bayertype+"_"+"linear.jpg");
-imwrite(Cxyz, "MHC_"+method+"_"+bayertype+"_"+"xyz.jpg");
-imwrite(Ccam, "MHC_"+method+"_"+bayertype+"_"+"cam.jpg");
+imwrite(Csrgb, method+"_"+bayertype+"_"+"rgb.jpg");
+imwrite(Clinear, method+"_"+bayertype+"_"+"linear.jpg");
+imwrite(Cxyz, method+"_"+bayertype+"_"+"xyz.jpg");
+imwrite(Ccam, method+"_"+bayertype+"_"+"cam.jpg");
 
-% Create histograms for R, G, B
+% Create RGB histograms for Linear
+hold on
+
+[redCounts, redBins] = imhist(Clinear(:,:,1));
+[greenCounts, greenBins] = imhist(Clinear(:,:,2));
+[blueCounts, blueBins] = imhist(Clinear(:,:,3));
+
+stem(blueBins, blueCounts, ".-b");
+stem(greenBins, greenCounts, ".-g");
+stem(redBins, redCounts, ".-r");
+
+hold off
+
+saveas(gcf, method+"_"+bayertype+"_linear_histogram.jpg");
+
+% Create RGB histograms for Csrgb
 hold on
 
 [redCounts, redBins] = imhist(Csrgb(:,:,1));
@@ -24,4 +39,34 @@ stem(redBins, redCounts, ".-r");
 
 hold off
 
-saveas(gcf, method+"_"+bayertype+"_"+"histogram.jpg");
+saveas(gcf, method+"_"+bayertype+"_rgb_histogram.jpg");
+
+% Create RGB histograms for XYZ
+hold on
+
+[redCounts, redBins] = imhist(Cxyz(:,:,1));
+[greenCounts, greenBins] = imhist(Cxyz(:,:,2));
+[blueCounts, blueBins] = imhist(Cxyz(:,:,3));
+
+stem(blueBins, blueCounts, ".-b");
+stem(greenBins, greenCounts, ".-g");
+stem(redBins, redCounts, ".-r");
+
+hold off
+
+saveas(gcf, method+"_"+bayertype+"_xyz_histogram.jpg");
+
+% Create RGB histograms for Cam
+hold on
+
+[redCounts, redBins] = imhist(Ccam(:,:,1));
+[greenCounts, greenBins] = imhist(Ccam(:,:,2));
+[blueCounts, blueBins] = imhist(Ccam(:,:,3));
+
+stem(blueBins, blueCounts, ".-b");
+stem(greenBins, greenCounts, ".-g");
+stem(redBins, redCounts, ".-r");
+
+hold off
+
+saveas(gcf, method+"_"+bayertype+"_cam_histogram.jpg");
