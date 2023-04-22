@@ -137,7 +137,7 @@ for i = 3:m-2
             red_pixel = beta * (I(i,j) + 4/5 * (I(i-1,j) + I(i+1,j)) - 1/5 * (I(i-1,j-1) + I(i-1,j+1) + I(i+1,j+1) + I(i+1,j-1) + I(i-2,j) + I(i+2,j)) + 1/10 * I(i,j-2) + 1/10 * I(i,j+2));
             blue_pixel = beta * (I(i,j) + 4/5 * (I(i-1,j) + I(i+1,j)) - 1/5 * (I(i-1,j-1) + I(i-1,j+1) + I(i+1,j+1) + I(i+1,j-1) + I(i-2,j) + I(i+2,j)) + 1/10 * I(i,j-2) + 1/10 * I(i,j+2));
             J(i,j,:) = [red_pixel, I(i,j), blue_pixel];
-        elseif (mod(i+j,2) == 0 && mod(i,2) == 0) % Green pixel in red row
+        elseif (mod(i+j,2) == 0 && mod(i,2) == 1) % Green pixel in red row
             red_pixel = beta * (I(i,j) + 4/5 * (I(i,j-1) + I(i,j+1)) - 1/5 * (I(i-1,j-1) + I(i-1,j+1) + I(i+1,j+1) + I(i+1,j-1) + I(i,j-2) + I(i,j+2)) + 1/10 * I(i-2,j) + 1/10 * I(i+2,j));
             blue_pixel = beta * (I(i,j) + 4/5 * (I(i,j-1) + I(i,j+1)) - 1/5 * (I(i-1,j-1) + I(i-1,j+1) + I(i+1,j+1) + I(i+1,j-1) + I(i,j-2) + I(i,j+2)) + 1/10 * I(i-2,j) + 1/10 * I(i+2,j));
             J(i,j,:) = [red_pixel, I(i,j), blue_pixel];
