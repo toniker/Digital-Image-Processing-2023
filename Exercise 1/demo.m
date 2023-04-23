@@ -1,4 +1,4 @@
-filename = "RawImage.tiff";
+filename = "RawImage.DNG";
 [rawim, XYZ2Cam, wbcoeffs] = readdng(filename);
 
 bayertype = "rggb";
