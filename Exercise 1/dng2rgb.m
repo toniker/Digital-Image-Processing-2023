@@ -1,4 +1,4 @@
-function [Csrgb, Clinear, Cxyz, Ccam] = dng2rgb(rawim, XYZ2Cam, wbcoeffs, bayertype, method)
+function [Csrgb, Clinear, Cxyz, Ccam] = dng2rgb(rawim, XYZ2Cam, wbcoeffs, bayertype, method, M, N)
 %% White balance
 mask = colormask(size(rawim,1), size(rawim,2), wbcoeffs, bayertype);
 color_balanced_im = rawim .* mask;

@@ -3,7 +3,9 @@ filename = "RawImage.tiff";
 
 bayertype = "rggb";
 method = "linear";
-[Csrgb, Clinear, Cxyz, Ccam] = dng2rgb(rawim, XYZ2Cam, wbcoeffs, bayertype, method);
+M = size(rawim, 1);
+N = size(rawim, 2);
+[Csrgb, Clinear, Cxyz, Ccam] = dng2rgb(rawim, XYZ2Cam, wbcoeffs, bayertype, method, M, N);
 
 % Write image files from the dng2rgb output
 imwrite(Csrgb, method+"_"+bayertype+"_"+"rgb.jpg");
