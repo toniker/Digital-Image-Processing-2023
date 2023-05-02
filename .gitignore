@@ -1,3 +1,8 @@
-*.asv
-*.jpg
+**.asv
+**.jpg
+**.zip
+**.DNG
+**.png
+**.pdf
+.idea/
 .DS_Store
