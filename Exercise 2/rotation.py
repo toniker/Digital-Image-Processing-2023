@@ -23,7 +23,7 @@ def rotate_image(input_image, angle):
     output_height = input_height * np.cos(radians) + input_width * np.sin(radians)
     output_width = input_height * np.sin(radians) + input_width * np.cos(radians)
     output_height, output_width = int(np.round(output_height)), int(np.round(output_width))
-    output_center = (output_width // 2, output_height // 2)
+    output_center = (output_height // 2, output_width // 2)
 
     rotated_image = np.zeros((output_height, output_width, number_of_colors), dtype=np.uint8)
 
