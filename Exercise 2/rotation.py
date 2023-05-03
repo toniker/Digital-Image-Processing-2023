@@ -4,19 +4,35 @@ import cv2
 import numpy as np
 
 
-def find_rotation_angle(img) -> float:
+def find_rotation_angle(image) -> float:
     """
     This function finds the rotation angle of the image.
-    :param img:
+    :param img: The input image
     :return: the angle as a float
     """
-    angle = 0
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    max_frequencies = np.array([])
 
-    img = cv.blur(img, (20, 20))
-    f = np.fft.fft2(img)
-    fshift = np.fft.fftshift(f)
-    magnitude = 20 * np.log(np.abs(fshift))
-    cv.imwrite("magnitude.jpg", magnitude)
+    for possible_angle in range(0, 360):
+        rotated_image = fast_rotate_image(image, possible_angle)
+        blurred_image = cv2.blur(rotated_image, (15, 15))
+        f = np.fft.fft2(blurred_image)
+        f_shift = np.fft.fftshift(f)
+        magnitude_spectrum = 20 * np.log(np.abs(f_shift))
+
+        # Find the maximum value of the middle row
+        vertical_axis = magnitude_spectrum.shape[0] // 2
+        max_value_index = np.argmax(magnitude_spectrum[:, vertical_axis])
+
+        # Convert index to frequency value
+        n = magnitude_spectrum.shape[0]
+        # The frequency values will be in the range of -0.5 to 0.5 cycles per pixel, as explained in the previous answer
+        max_frequency = max_value_index / n
+        max_frequencies = np.append(max_frequencies, max_frequency)
+
+    # cv2.imwrite("magnitude.jpg", magnitude_spectrum)
+    angle = np.argmax(max_frequencies)
+    print(f"Max frequency: {max(max_frequencies)} at angle {angle}")
 
     return angle
 
