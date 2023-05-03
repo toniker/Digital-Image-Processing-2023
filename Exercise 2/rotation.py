@@ -12,6 +12,12 @@ def find_rotation_angle(img) -> float:
     """
     angle = 0
 
+    img = cv.blur(img, (20, 20))
+    f = np.fft.fft2(img)
+    fshift = np.fft.fftshift(f)
+    magnitude = 20 * np.log(np.abs(fshift))
+    cv.imwrite("magnitude.jpg", magnitude)
+
     return angle
 
 
