@@ -47,8 +47,11 @@ def rotate_image(input_image, angle):
 
 if __name__ == "__main__":
     start_time = time.time()
-    image = cv.imread("image.jpg")
-    cv.imwrite("rotated.jpg", rotate_image(image, 60))
+    # image = cv.imread("text1.png")
+    # rotated_image = rotate_image(image, 30)
+    # cv.imwrite("rotated.jpg", rotated_image)
+    rotated_image = cv.imread("rotated.jpg")
+    angle = find_rotation_angle(rotated_image)
     # Measure the execution time
     execution_time = round(time.time() - start_time, 3)
     print(f"Rotation finished in {execution_time} seconds")
