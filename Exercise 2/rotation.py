@@ -1,6 +1,6 @@
 import time
 
-import cv2 as cv
+import cv2
 import numpy as np
 
 
@@ -69,11 +69,12 @@ def fast_rotate_image(image, angle):
 
 if __name__ == "__main__":
     start_time = time.time()
-    # image = cv.imread("text1.png")
+    image = cv2.imread("text1.png")
+    # cv2.imwrite("fast_rotated.jpg", fast_rotate_image(image, 144))
     # rotated_image = rotate_image(image, 30)
     # cv.imwrite("rotated.jpg", rotated_image)
-    rotated_image = cv.imread("rotated.jpg")
-    angle = find_rotation_angle(rotated_image)
+    # rotated_image = cv.imread("rotated.jpg")
+    angle = find_rotation_angle(image)
     # Measure the execution time
     execution_time = round(time.time() - start_time, 3)
     print(f"Rotation finished in {execution_time} seconds")
