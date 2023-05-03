@@ -45,6 +45,28 @@ def rotate_image(input_image, angle):
     return rotated_image
 
 
+def fast_rotate_image(image, angle):
+    height, width = image.shape[:2]
+    image_center = (width // 2, height // 2)
+
+    rotation_matrix = cv2.getRotationMatrix2D(image_center, angle, 1.)
+
+    # Calculate new image dimensions
+    cos_theta = abs(rotation_matrix[0, 0])
+    sin_theta = abs(rotation_matrix[0, 1])
+    new_width = int((height * sin_theta) + (width * cos_theta))
+    new_height = int((height * cos_theta) + (width * sin_theta))
+
+    # Adjust the rotation matrix to take into account translation
+    rotation_matrix[0, 2] += (new_width / 2) - image_center[0]
+    rotation_matrix[1, 2] += (new_height / 2) - image_center[1]
+
+    # Perform the actual rotation and pad the unused area with black
+    result = cv2.warpAffine(image, rotation_matrix, (new_width, new_height))
+
+    return result
+
+
 if __name__ == "__main__":
     start_time = time.time()
     # image = cv.imread("text1.png")
