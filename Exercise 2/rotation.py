@@ -25,7 +25,7 @@ def find_rotation_angle(image: np.ndarray) -> float:
     edges = cv2.Canny(image, 50, 150)
 
     # Apply Hough transform
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 200, minLineLength=20, maxLineGap=10)
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 20, minLineLength=20, maxLineGap=10)
 
     angles = []
     # Draw lines on the image
