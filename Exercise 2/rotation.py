@@ -4,37 +4,41 @@ import cv2
 import numpy as np
 
 
-def find_rotation_angle(image) -> float:
+def find_rotation_angle(image: np.ndarray) -> float:
     """
     This function finds the rotation angle of the image.
-    :param img: The input image
+    :param image: The input image
     :return: the angle as a float
     """
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    max_frequencies = np.array([])
 
-    for possible_angle in range(0, 360):
-        rotated_image = fast_rotate_image(image, possible_angle)
-        blurred_image = cv2.blur(rotated_image, (15, 15))
-        f = np.fft.fft2(blurred_image)
-        f_shift = np.fft.fftshift(f)
-        magnitude_spectrum = 20 * np.log(np.abs(f_shift))
+    blurred_image = cv2.blur(image, (15, 15))
+    f = np.fft.fft2(blurred_image)
+    f_shift = np.fft.fftshift(f)
+    magnitude_spectrum = 20 * np.log(np.abs(f_shift))
+    magnitude_spectrum = magnitude_spectrum - np.mean(magnitude_spectrum)
+    # Apply thresholding
+    magnitude_spectrum[magnitude_spectrum < 150] = 0
+    cv2.imwrite("magnitude_spectrum.jpg", magnitude_spectrum)
 
-        # Find the maximum value of the middle row
-        vertical_axis = magnitude_spectrum.shape[0] // 2
-        max_value_index = np.argmax(magnitude_spectrum[:, vertical_axis])
+    # Apply edge detection
+    edges = cv2.Canny(image, 50, 150)
 
-        # Convert index to frequency value
-        n = magnitude_spectrum.shape[0]
-        # The frequency values will be in the range of -0.5 to 0.5 cycles per pixel, as explained in the previous answer
-        max_frequency = max_value_index / n
-        max_frequencies = np.append(max_frequencies, max_frequency)
+    # Apply Hough transform
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 200, minLineLength=20, maxLineGap=10)
 
-    # cv2.imwrite("magnitude.jpg", magnitude_spectrum)
-    angle = np.argmax(max_frequencies)
-    print(f"Max frequency: {max(max_frequencies)} at angle {angle}")
+    angles = []
+    # Draw lines on the image
+    for line in lines:
+        x1, y1, x2, y2 = line[0]
+        slope = (y2 - y1) / (x2 - x1)
+        angle = np.degrees(np.arctan(slope))
+        angles.append(angle)
+        cv2.line(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-    return angle
+    cv2.imwrite("lines.jpg", image)
+
+    return float(np.mean(angles))
 
 
 def rotate_image(input_image, angle):
@@ -86,11 +90,13 @@ def fast_rotate_image(image, angle):
 if __name__ == "__main__":
     start_time = time.time()
     image = cv2.imread("text1.png")
-    # cv2.imwrite("fast_rotated.jpg", fast_rotate_image(image, 144))
-    # rotated_image = rotate_image(image, 30)
+
+    rotated_image = fast_rotate_image(image, 20)
     # cv.imwrite("rotated.jpg", rotated_image)
-    # rotated_image = cv.imread("rotated.jpg")
-    angle = find_rotation_angle(image)
+
+    angle = find_rotation_angle(rotated_image)
+    print(f"Angle: {angle}")
+
     # Measure the execution time
     execution_time = round(time.time() - start_time, 3)
     print(f"Rotation finished in {execution_time} seconds")
