@@ -18,14 +18,19 @@ def find_rotation_angle(image: np.ndarray) -> float:
     magnitude_spectrum = 20 * np.log(np.abs(f_shift))
     magnitude_spectrum = magnitude_spectrum - np.mean(magnitude_spectrum)
     # Apply thresholding
-    magnitude_spectrum[magnitude_spectrum < 150] = 0
+    magnitude_spectrum[magnitude_spectrum < 130] = 0
+    magnitude_spectrum = magnitude_spectrum.astype(np.uint8)
+    magnitude_spectrum = cv2.cvtColor(magnitude_spectrum, cv2.COLOR_GRAY2RGB)
     cv2.imwrite("magnitude_spectrum.jpg", magnitude_spectrum)
 
     # Apply edge detection
-    edges = cv2.Canny(image, 50, 150)
+    edges = cv2.Canny(magnitude_spectrum, 40, 150)
 
     # Apply Hough transform
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 20, minLineLength=20, maxLineGap=10)
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 20, minLineLength=70, maxLineGap=20)
+
+    if lines is None:
+        return "unknown"
 
     angles = []
     # Draw lines on the image
@@ -33,12 +38,14 @@ def find_rotation_angle(image: np.ndarray) -> float:
         x1, y1, x2, y2 = line[0]
         slope = (y2 - y1) / (x2 - x1)
         angle = np.degrees(np.arctan(slope))
+        if not -35 < angle < 35:
+            continue
         angles.append(angle)
-        cv2.line(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        cv2.line(magnitude_spectrum, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-    cv2.imwrite("lines.jpg", image)
+    cv2.imwrite("lines.jpg", magnitude_spectrum)
 
-    return float(np.mean(angles))
+    return -round(np.mean(angles), 2)
 
 
 def rotate_image(input_image, angle):
@@ -91,7 +98,7 @@ if __name__ == "__main__":
     start_time = time.time()
     image = cv2.imread("text1.png")
 
-    rotated_image = fast_rotate_image(image, 20)
+    rotated_image = fast_rotate_image(image, 0)
     # cv.imwrite("rotated.jpg", rotated_image)
 
     angle = find_rotation_angle(rotated_image)
