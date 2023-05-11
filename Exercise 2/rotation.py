@@ -1,10 +1,11 @@
 import time
+from typing import Any
 
 import cv2
 import numpy as np
 
 
-def find_rotation_angle(image: np.ndarray) -> float:
+def find_rotation_angle(image: np.ndarray) -> str | float:
     """
     This function finds the rotation angle of the image.
     :param image: The input image
@@ -37,15 +38,15 @@ def find_rotation_angle(image: np.ndarray) -> float:
     for line in lines:
         x1, y1, x2, y2 = line[0]
         slope = (y2 - y1) / (x2 - x1)
-        angle = np.degrees(np.arctan(slope))
-        if not -35 < angle < 35:
+        predicted_angle = np.degrees(np.arctan(slope))
+        if not -35 < predicted_angle < 35:
             continue
-        angles.append(angle)
+        angles.append(predicted_angle)
         cv2.line(magnitude_spectrum, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
     cv2.imwrite("lines.jpg", magnitude_spectrum)
 
-    return -round(np.mean(angles), 2)
+    return -round(float(np.mean(angles)), 2)
 
 
 def rotate_image(input_image, angle):
@@ -96,12 +97,11 @@ def fast_rotate_image(image, angle):
 
 if __name__ == "__main__":
     start_time = time.time()
-    image = cv2.imread("text1.png")
+    img = cv2.imread("text1.png")
 
-    rotated_image = fast_rotate_image(image, 0)
-    # cv.imwrite("rotated.jpg", rotated_image)
+    rot_image = fast_rotate_image(img, 0)
 
-    angle = find_rotation_angle(rotated_image)
+    angle = find_rotation_angle(rot_image)
     print(f"Angle: {angle}")
 
     # Measure the execution time
