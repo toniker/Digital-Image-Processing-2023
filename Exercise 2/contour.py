@@ -38,11 +38,10 @@ def getcountour(letter):
         sequences.append(descriptor)
     del sequence, sequence_dft, sequence_dft_shift, descriptor, contour, point, i, hierarchy
 
-    eroded = cv2.cvtColor(eroded, cv2.COLOR_GRAY2RGB)
-    cv2.drawContours(eroded, contours, -1, (0, 255, 0), 1)
-    cv2.imwrite("contoured.png", eroded)
     # Draw the contours
-    # sequences = np.array(sequences)
+    # eroded = cv2.cvtColor(eroded, cv2.COLOR_GRAY2RGB)
+    # cv2.drawContours(eroded, contours, -1, (0, 255, 0), 1)
+    # cv2.imwrite("contoured.png", eroded)
 
     return sequences
 
