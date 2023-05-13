@@ -5,15 +5,26 @@ import cv2
 def getcountour(letter):
     cell_array = np.array((5, 2))
 
+    # Apply threshold to the image
+    ret, binary_image = cv2.threshold(letter, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    inverted = cv2.bitwise_not(binary_image)
+    del ret, binary_image
+
+    # dilate the image
     kernel = np.ones((3, 3), np.uint8)
+    dilated = cv2.dilate(inverted, kernel)
 
-    letter = cv2.bitwise_not(letter)
-    diff = cv2.morphologyEx(letter, cv2.MORPH_GRADIENT, kernel)
+    # Remove the dilated image from the original image
+    subtracted = cv2.subtract(letter, dilated)
 
-    ret, threshold = cv2.threshold(diff, 127, 255, 0)
+    # Perform thinning of the result image
+    inverted = cv2.bitwise_not(subtracted)
+    eroded = cv2.erode(inverted, kernel)
+    del inverted, dilated, subtracted, kernel
 
-    contours, hierarchy = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    del kernel, ret
+    contours, hierarchy = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    hierarchy = hierarchy.squeeze()
+
     sequences = []
 
     for contour in contours:
@@ -27,11 +38,12 @@ def getcountour(letter):
         sequence_dft_shift = np.fft.fftshift(sequence_dft)
         descriptor = np.abs(sequence_dft_shift[1::])
         sequences.append(descriptor)
-        del sequence, sequence_dft, sequence_dft_shift, descriptor, contour, point
+    del sequence, sequence_dft, sequence_dft_shift, descriptor, contour, point, i
 
-    threshold = cv2.cvtColor(threshold, cv2.COLOR_GRAY2RGB)
-    # contoured_image = cv2.drawContours(threshold, contours, -1, (0, 255, 0), 2)
-    cv2.imwrite("contoured.png", threshold)
+    eroded = cv2.cvtColor(eroded, cv2.COLOR_GRAY2RGB)
+    cv2.drawContours(eroded, contours, -1, (0, 255, 0), 1)
+    cv2.imwrite("contoured.png", eroded)
+    # Draw the contours
     # sequences = np.array(sequences)
 
     return cell_array
