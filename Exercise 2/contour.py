@@ -36,7 +36,7 @@ def getcountour(letter):
         sequence_dft_shift = np.fft.fftshift(sequence_dft)
         descriptor = np.abs(sequence_dft_shift[1::])
         sequences.append(descriptor)
-    del sequence, sequence_dft, sequence_dft_shift, descriptor, contour, point, i
+    del sequence, sequence_dft, sequence_dft_shift, descriptor, contour, point, i, hierarchy
 
     eroded = cv2.cvtColor(eroded, cv2.COLOR_GRAY2RGB)
     cv2.drawContours(eroded, contours, -1, (0, 255, 0), 1)
