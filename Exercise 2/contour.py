@@ -3,8 +3,6 @@ import cv2
 
 
 def getcountour(letter):
-    cell_array = np.array((5, 2))
-
     # Apply threshold to the image
     ret, binary_image = cv2.threshold(letter, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     inverted = cv2.bitwise_not(binary_image)
@@ -46,7 +44,7 @@ def getcountour(letter):
     # Draw the contours
     # sequences = np.array(sequences)
 
-    return cell_array
+    return sequences
 
 
 if __name__ == "__main__":
