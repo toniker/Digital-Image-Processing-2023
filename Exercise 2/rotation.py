@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 
-def find_rotation_angle(image: np.ndarray) -> str | float:
+def find_rotation_angle(image: np.ndarray):
     """
     This function finds the rotation angle of the image.
     :param image: The input image
