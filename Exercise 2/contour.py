@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-
+from scipy.interpolate import interp1d
 
 def getcountour(letter):
     # Apply threshold to the image
@@ -61,10 +61,21 @@ def compare_contours(c1, c2):
             del seq, sequence_dft, sequence_dft_shift, descriptor
 
             if len(c1_sequence) > len(c2_sequence):
-                c2_sequence = np.pad(c2_sequence, (0, len(c1_sequence) - len(c2_sequence)), 'constant', constant_values=(0, 0))
-            elif len(c2_sequence) > len(c1_sequence):
-                c1_sequence = np.pad(c1_sequence, (0, len(c2_sequence) - len(c1_sequence)), 'constant', constant_values=(0, 0))
+                x = np.linspace(0, 1, len(c2_sequence))
+                y = np.random.rand(len(c2_sequence))
 
+                f = interp1d(x, y, kind="cubic")
+                xnew = np.linspace(0, 1, len(c1_sequence))
+                c2_sequence = f(xnew)
+                del x, y, f, xnew
+            elif len(c2_sequence) > len(c1_sequence):
+                x = np.linspace(0, 1, len(c1_sequence))
+                y = np.random.rand(len(c1_sequence))
+
+                f = interp1d(x, y, kind="cubic")
+                xnew = np.linspace(0, 1, len(c2_sequence))
+                c1_sequence = f(xnew)
+                del x, y, f, xnew
             # Compute the difference between the two contours
             c1_sequence = np.abs(c1_sequence)
             c2_sequence = np.abs(c2_sequence)
@@ -92,7 +103,7 @@ if __name__ == "__main__":
     #         if letter != letter2:
     #             print(f"{letter} and {letter2} are {compare_contours(sequence, sequence2)} points similar")
 
-    input_image = cv2.imread("input_a_text1.png")
+    input_image = cv2.imread("f.png")
     input_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
     input_contour = getcountour(input_image)
     results = {}
