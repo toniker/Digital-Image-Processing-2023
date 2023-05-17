@@ -57,8 +57,6 @@ def get_line_indices(image):
 
 
 def get_words(image, lines):
-    indices = []
-
     for line in lines:
         line_image = image[line.y1:line.y2, :]
         line_image = cv2.cvtColor(line_image, cv2.COLOR_BGR2GRAY)
