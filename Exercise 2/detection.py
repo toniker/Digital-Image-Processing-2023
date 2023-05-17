@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+from contour import get_contour, compare_contours
 
 
 class Letter:
@@ -125,4 +126,6 @@ if __name__ == '__main__':
         for word in line.words:
             for letter in word.letters:
                 letter_img = img[letter.y1:letter.y2, letter.x1:letter.x2]
+                letter_img = cv2.cvtColor(letter_img, cv2.COLOR_BGR2GRAY)
+                letter.contour = get_contour(letter_img.astype(np.uint8))
     print('Done')
