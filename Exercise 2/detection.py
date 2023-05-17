@@ -19,15 +19,14 @@ class Word:
         self.x2 = x2
         self.y1 = y1
         self.y2 = y2
-        self.letters = letters
         self.coordinates = ((x1, y1), (x2, y2))
+        self.letters = letters
 
 
 class Line:
     def __init__(self, y1, y2, words=None):
         self.y1 = y1
         self.y2 = y2
-        self.words = words
         self.coordinates = (y1, y2)
         self.words = words
 
