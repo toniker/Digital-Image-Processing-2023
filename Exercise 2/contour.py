@@ -1,8 +1,9 @@
-import numpy as np
 import cv2
+import numpy as np
 from scipy.interpolate import interp1d
 
-def getcountour(letter):
+
+def get_contour(letter):
     # Apply threshold to the image
     ret, binary_image = cv2.threshold(letter, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     inverted = cv2.bitwise_not(binary_image)
@@ -94,7 +95,7 @@ if __name__ == "__main__":
     for letter in letters:
         img = cv2.imread(letter)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        sequence = getcountour(img)
+        sequence = get_contour(img)
         letter_contours[letter] = sequence
 
     # for letter, sequence in letter_contours.items():
@@ -105,7 +106,7 @@ if __name__ == "__main__":
 
     input_image = cv2.imread("f.png")
     input_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
-    input_contour = getcountour(input_image)
+    input_contour = get_contour(input_image)
     results = {}
     for letter, contour in letter_contours.items():
         result = compare_contours(input_contour, contour)
