@@ -1,6 +1,13 @@
-import numpy as np
 import cv2
+import numpy as np
+
 from contour import get_contour, compare_contours
+
+
+class KnownLetter:
+    def __init__(self, name, contour):
+        self.name = name
+        self.contour = contour
 
 
 class Letter:
@@ -11,6 +18,7 @@ class Letter:
         self.y2 = y2
         self.coordinates = ((x1, y1), (x2, y2))
         self.contour = contour
+        self.looks_like = None
 
 
 class Word:
@@ -107,7 +115,8 @@ def get_letters(image, lines):
                     start_index = None
 
             if start_index is not None:
-                letters.append(Letter(word.x1 + start_index, word.x1 + len(horizontal_projection) - 1, word.y1, word.y2))
+                letters.append(
+                    Letter(word.x1 + start_index, word.x1 + len(horizontal_projection) - 1, word.y1, word.y2))
 
             word.letters = letters
 
@@ -115,14 +124,39 @@ def get_letters(image, lines):
 
 
 if __name__ == '__main__':
-    img = cv2.imread('text1_v3.png')
+    img = cv2.imread('letters.png')
     lines = get_line_indices(img)
     lines = get_words(img, lines)
     lines = get_letters(img, lines)
+
+    known_letter_names = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
+                          'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+                          'w', 'x', 'y', 'z']
+    known_letters = []
+    for known_letter_name in known_letter_names:
+        known_letter_img = cv2.imread('letters/' + known_letter_name + '.png')
+        known_letter_img = cv2.cvtColor(known_letter_img, cv2.COLOR_BGR2GRAY)
+        known_letter_contour = get_contour(known_letter_img.astype(np.uint8))
+        known_letters.append(KnownLetter(known_letter_name, known_letter_contour))
+
+    del known_letter_names, known_letter_name, known_letter_img, known_letter_contour
+    string = ''
     for line in lines:
         for word in line.words:
             for letter in word.letters:
                 letter_img = img[letter.y1:letter.y2, letter.x1:letter.x2]
                 letter_img = cv2.cvtColor(letter_img, cv2.COLOR_BGR2GRAY)
                 letter.contour = get_contour(letter_img.astype(np.uint8))
+                best_score = np.inf
+                for known_letter in known_letters:
+                    score = compare_contours(letter.contour, known_letter.contour)
+                    if score < best_score:
+                        best_score = score
+                        letter.looks_like = known_letter
+
+                string += letter.looks_like.name
+            string += ' '
+        string += '\n'
+
+    print(string)
     print('Done')

@@ -32,6 +32,9 @@ def get_contour(letter):
 
 def compare_contours(c1, c2):
     similarities = []
+    if len(c1) != len(c2):
+        return np.inf
+
     # Compare the contours
     for c11 in c1:
         contour = np.squeeze(c11)
