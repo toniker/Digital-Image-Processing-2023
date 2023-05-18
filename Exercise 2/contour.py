@@ -9,7 +9,7 @@ def get_contour(letter):
     inverted = cv2.bitwise_not(binary_image)
     del ret, binary_image
 
-    # dilate the image
+    # Dilate the image
     kernel = np.ones((3, 3), np.uint8)
     dilated = cv2.dilate(inverted, kernel)
     # Remove the dilated image from the original image
@@ -22,15 +22,17 @@ def get_contour(letter):
 
     contours, hierarchy = cv2.findContours(eroded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Draw the contours
-    # eroded = cv2.cvtColor(eroded, cv2.COLOR_GRAY2RGB)
-    # cv2.drawContours(eroded, contours, -1, (0, 255, 0), 1)
-    # cv2.imwrite("contoured.png", eroded)
-
     return contours
 
 
 def compare_contours(c1, c2):
+    """
+    Compare two letters using their Fourier descriptors. The letters may have a different number of contours, and each
+    pair will be compared. The result is the lowest sum of the differences of each pair of contours.
+    :param c1: The contour of the first letter
+    :param c2: The contour of the second letter
+    :return: The lowest sum of the differences of each pair of contours
+    """
     similarities = []
     if len(c1) != len(c2):
         return np.inf
@@ -69,6 +71,7 @@ def compare_contours(c1, c2):
                 similarities.append(9999999999999)
                 continue
 
+            # Interpolate the sequences to be the same length
             if len(c1_sequence) > len(c2_sequence):
                 x = np.linspace(0, 1, len(c2_sequence))
                 y = np.random.rand(len(c2_sequence))
@@ -85,6 +88,7 @@ def compare_contours(c1, c2):
                 xnew = np.linspace(0, 1, len(c2_sequence))
                 c1_sequence = f(xnew)
                 del x, y, f, xnew
+
             # Compute the difference between the two contours
             c1_sequence = np.abs(c1_sequence)
             c2_sequence = np.abs(c2_sequence)
@@ -94,6 +98,7 @@ def compare_contours(c1, c2):
             similarity = np.sum(difference ** 2)
             similarities.append(similarity)
 
+    # Return the "score" of the most similar contour. Lower score means more similar
     return int(min(similarities))
 
 
