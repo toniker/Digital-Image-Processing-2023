@@ -12,13 +12,17 @@ def find_rotation_angle_hough(image):
     :param image: The input image
     :return: The estimated rotation angle
     """
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
+    # Convert to grayscale and blur
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred_image = cv2.blur(image, (15, 15))
+
+    # Apply DFT
     f = np.fft.fft2(blurred_image)
     f_shift = np.fft.fftshift(f)
     magnitude_spectrum = 20 * np.log(np.abs(f_shift))
     magnitude_spectrum = magnitude_spectrum - np.mean(magnitude_spectrum)
+
     # Apply thresholding
     magnitude_spectrum[magnitude_spectrum < 130] = 0
     magnitude_spectrum = magnitude_spectrum.astype(np.uint8)
@@ -59,24 +63,32 @@ def find_rotation_angle(image):
     :param image: The input image
     :return: The estimated angle
     """
+
+    # Convert to grayscale and blur
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred_image = cv2.blur(image, (8, 8))
 
+    # Apply DFT
     f = np.fft.fft2(blurred_image)
     f_shift = np.fft.fftshift(f)
     magnitude_spectrum = 20 * np.log(np.abs(f_shift))
 
+    # Remove the DC component
     center = tuple(i // 2 for i in magnitude_spectrum.shape)
     magnitude_spectrum[center] = 0
 
+    # Get the position of the maximum frequency
     max_frequency = np.argmax(magnitude_spectrum)
     max_frequency_position = np.unravel_index(max_frequency, magnitude_spectrum.shape)
 
+    # Get the initial estimate of the angle
     initial_estimation = np.rad2deg(
         np.arctan2(center[1] - max_frequency_position[1], center[0] - max_frequency_position[0]))
     initial_estimation = int(initial_estimation)
+    # The DFT is symmetric every 90 degrees
     initial_estimation %= 90
 
+    # Start a search for the best angle
     best_estimate = initial_estimation, 0
     for possible_angle in range(initial_estimation - 20, initial_estimation + 20):
         test_image = fast_rotate_image(image, -possible_angle)
@@ -84,8 +96,13 @@ def find_rotation_angle(image):
         test_image[test_image < 240] = 0
         test_image[test_image >= 240] = 255
         vertical_projection = np.sum(test_image, axis=0)
+
+        # Find the average rate of change for the vertical projection
         diffs = [abs(vertical_projection[j + 1] - vertical_projection[j]) for j in range(len(vertical_projection) - 1)]
         avg_diff = np.mean(diffs)
+
+        # The vertical projection should have a lot of changes between bright and dark areas, since the straightened
+        # text will have blank lines between the black text lines
         if avg_diff > best_estimate[1]:
             best_estimate = (possible_angle, avg_diff)
 
