@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
+import os
 
 from contour import get_contour, compare_contours
-from rotation import find_rotation_angle, fast_rotate_image
+from rotation import find_rotation_angle, fast_rotate_image, find_rotation_angle_hough, rotate_image
 
 
 class KnownLetter:
@@ -125,17 +126,27 @@ def get_letters(image, lines):
     return lines
 
 
-if __name__ == '__main__':
-    img = cv2.imread('text1_v3.png')
-    angle = find_rotation_angle(img)
-    img = fast_rotate_image(img, -angle)
-    lines = get_line_indices(img)
-    lines = get_words(img, lines)
-    lines = get_letters(img, lines)
+def generate_known_letters():
+    current_directory = os.getcwd()
+    final_directory = os.path.join(current_directory, r'letters')
+    if not os.path.exists(final_directory):
+        os.makedirs(final_directory)
+    letters_img = 'letters.png'
+    letters = cv2.imread(letters_img)
+    letter_lines = get_line_indices(letters)
+    letter_lines = get_words(letters, letter_lines)
+    letter_lines = get_letters(letters, letter_lines)
 
-    known_letter_names = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
-                          'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-                          'w', 'x', 'y', 'z']
+    # ASCII value for 'a'
+    name = 97
+    for letter_line in letter_lines:
+        for letter_word in letter_line.words:
+            for letter_letter in letter_word.letters:
+                letter_img = letters[letter_letter.y1:letter_letter.y2, letter_letter.x1:letter_letter.x2]
+                cv2.imwrite('letters/' + chr(name) + '.png', letter_img)
+                name += 1
+
+    known_letter_names = [chr(i) for i in range(97, 123)]
     known_letters = []
     for known_letter_name in known_letter_names:
         known_letter_img = cv2.imread('letters/' + known_letter_name + '.png')
@@ -143,8 +154,20 @@ if __name__ == '__main__':
         known_letter_contour = get_contour(known_letter_img.astype(np.uint8))
         known_letters.append(KnownLetter(known_letter_name, known_letter_contour))
 
+    del letter_line, letter_word, letter_letter, letter_img, letters, letters_img, letter_lines
+    return known_letters
+
+
+if __name__ == '__main__':
+    known_letters = generate_known_letters()
+    img = cv2.imread('letters.png')
+    angle = find_rotation_angle_hough(img)
+    img = rotate_image(img, -angle)
+    lines = get_line_indices(img)
+    lines = get_words(img, lines)
+    lines = get_letters(img, lines)
+
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    del known_letter_names, known_letter_name, known_letter_img, known_letter_contour
     string = ''
     for line in lines:
         for word in line.words:
