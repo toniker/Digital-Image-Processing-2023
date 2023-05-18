@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 
 from contour import get_contour, compare_contours
+from rotation import find_rotation_angle, fast_rotate_image
 
 
 class KnownLetter:
@@ -125,7 +126,9 @@ def get_letters(image, lines):
 
 
 if __name__ == '__main__':
-    img = cv2.imread('letters.png')
+    img = cv2.imread('text1_v3.png')
+    angle = find_rotation_angle(img)
+    img = fast_rotate_image(img, -angle)
     lines = get_line_indices(img)
     lines = get_words(img, lines)
     lines = get_letters(img, lines)
