@@ -139,13 +139,13 @@ if __name__ == '__main__':
         known_letter_contour = get_contour(known_letter_img.astype(np.uint8))
         known_letters.append(KnownLetter(known_letter_name, known_letter_contour))
 
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     del known_letter_names, known_letter_name, known_letter_img, known_letter_contour
     string = ''
     for line in lines:
         for word in line.words:
             for letter in word.letters:
                 letter_img = img[letter.y1:letter.y2, letter.x1:letter.x2]
-                letter_img = cv2.cvtColor(letter_img, cv2.COLOR_BGR2GRAY)
                 letter.contour = get_contour(letter_img.astype(np.uint8))
                 best_score = np.inf
                 for known_letter in known_letters:
