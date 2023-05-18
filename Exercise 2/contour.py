@@ -64,6 +64,11 @@ def compare_contours(c1, c2):
             c2_sequence = descriptor
             del seq, sequence_dft, sequence_dft_shift, descriptor
 
+            # If we need to interpolate the sequences, they must be at least 4 points long
+            if len(c1_sequence) != len(c2_sequence) and len(c1_sequence) < 4 or len(c2_sequence) < 4:
+                similarities.append(9999999999999)
+                continue
+
             if len(c1_sequence) > len(c2_sequence):
                 x = np.linspace(0, 1, len(c2_sequence))
                 y = np.random.rand(len(c2_sequence))
