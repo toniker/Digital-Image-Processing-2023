@@ -111,10 +111,11 @@ def get_letters(image, lines):
                 if val == 0 and start_index is None:
                     start_index = i
                 elif val == 255 and start_index is not None:
-                    letters.append(Letter(word.x1 + start_index, word.x1 + i - 1, word.y1, word.y2))
+                    if word.x1 + start_index != word.x1 + i - 1:
+                        letters.append(Letter(word.x1 + start_index, word.x1 + i - 1, word.y1, word.y2))
                     start_index = None
 
-            if start_index is not None:
+            if start_index is not None and (word.x1 + start_index != word.x1 + len(horizontal_projection) - 1):
                 letters.append(
                     Letter(word.x1 + start_index, word.x1 + len(horizontal_projection) - 1, word.y1, word.y2))
 
