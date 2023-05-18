@@ -153,6 +153,8 @@ if __name__ == '__main__':
                     if score < best_score:
                         best_score = score
                         letter.looks_like = known_letter
+                if best_score == np.inf:
+                    letter.looks_like = KnownLetter('?', None)
 
                 string += letter.looks_like.name
             string += ' '
