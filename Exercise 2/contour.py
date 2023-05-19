@@ -106,7 +106,10 @@ if __name__ == "__main__":
     letters = ["a.png", "e.png", "f.png", "l.png"]
     letter_contours = {}
     for letter in letters:
-        img = cv2.imread(letter)
+        img = cv2.imread("letters/" + letter)
+        if img is None:
+            print("Letters folder is missing, run detection.py to populate the characters")
+            exit(1)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         sequence = get_contour(img)
         letter_contours[letter] = sequence

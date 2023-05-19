@@ -1,9 +1,10 @@
-import cv2
-import numpy as np
 import os
 
+import cv2
+import numpy as np
+
 from contour import get_contour, compare_contours
-from rotation import find_rotation_angle, fast_rotate_image, find_rotation_angle_hough, rotate_image
+from rotation import find_rotation_angle_hough, rotate_image
 
 
 class KnownLetter:
@@ -131,8 +132,10 @@ def generate_known_letters():
     final_directory = os.path.join(current_directory, r'letters')
     if not os.path.exists(final_directory):
         os.makedirs(final_directory)
-    letters_img = 'letters.png'
-    letters = cv2.imread(letters_img)
+    letters = cv2.imread('letters.png')
+    if letters is None:
+        print('Could not find letters.png')
+        return
     letter_lines = get_line_indices(letters)
     letter_lines = get_words(letters, letter_lines)
     letter_lines = get_letters(letters, letter_lines)
@@ -154,13 +157,15 @@ def generate_known_letters():
         known_letter_contour = get_contour(known_letter_img.astype(np.uint8))
         known_letters.append(KnownLetter(known_letter_name, known_letter_contour))
 
-    del letter_line, letter_word, letter_letter, letter_img, letters, letters_img, letter_lines
     return known_letters
 
 
 if __name__ == '__main__':
     known_letters = generate_known_letters()
     img = cv2.imread('letters.png')
+    if img is None:
+        print("Letters.png needs to be in this folder!")
+        exit(1)
     angle = find_rotation_angle_hough(img)
     img = rotate_image(img, -angle)
     lines = get_line_indices(img)
