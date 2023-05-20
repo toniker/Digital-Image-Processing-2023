@@ -102,7 +102,7 @@ def get_letters(image, lines):
             word_image = image[word.y1:word.y2, word.x1:word.x2]
             word_image = cv2.cvtColor(word_image, cv2.COLOR_BGR2GRAY)
 
-            _, binarizedImage = cv2.threshold(word_image, 240, 255, cv2.THRESH_BINARY)
+            _, binarizedImage = cv2.threshold(word_image, 238, 255, cv2.THRESH_BINARY)
 
             horizontal_projection = np.sum(binarizedImage, axis=0)
             horizontal_projection[horizontal_projection < np.max(horizontal_projection)] = 0
