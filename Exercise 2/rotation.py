@@ -172,10 +172,14 @@ if __name__ == "__main__":
     start_time = time.time()
     img = cv2.imread("text1.png")
 
-    rot_image = fast_rotate_image(img, 0)
+    rotation_angle = 10
+    rot_image = rotate_image(img, rotation_angle)
 
-    angle = find_rotation_angle_hough(rot_image)
-    print(f"Estimated angle: {angle} degrees")
+    angle_hough = find_rotation_angle_hough(rot_image)
+    angle_dft = find_rotation_angle(rot_image)
+    print(f"Estimated angle using DFT: {angle_dft} degrees")
+    print(f"Estimated angle using Hough: {angle_hough} degrees")
+    print(f"Real angle: {rotation_angle} degrees")
 
     # Measure the execution time
     execution_time = round(time.time() - start_time, 3)
