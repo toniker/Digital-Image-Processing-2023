@@ -160,8 +160,6 @@ def my_RANSAC(matching_points, r, N):
     for i in range(N):
         random_points = random.sample(matching_points, 2)
         point_1, point_2 = random_points[0], random_points[1]
-        point_1 = point_1[0]
-        point_2 = point_2[0]
 
         y1, x1 = point_1
         y2, x2 = point_2
@@ -172,7 +170,7 @@ def my_RANSAC(matching_points, r, N):
         inlier_matching_points = []
         outlier_matching_points = []
         for point in matching_points:
-            y, x = point[0]
+            y, x = point
             distance = np.abs(y - x * np.tan(theta) - d)
             if distance < r:
                 inlier_matching_points.append(point)
@@ -182,7 +180,7 @@ def my_RANSAC(matching_points, r, N):
         if len(inlier_matching_points) > len(outlier_matching_points):
             break
 
-    H = {'theta': theta, 'd': d}
+    H = {'theta': np.rad2deg(theta), 'd': d}
     return H, inlier_matching_points, outlier_matching_points
 
 
