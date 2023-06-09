@@ -30,7 +30,8 @@ def pol2cart(rho, phi):
 
 def my_local_descriptor(I, p, rho_m, rho_M, rho_step, N):
     if is_out_of_bounds(I, p, rho_M):
-        return np.array([])
+        number_of_descriptors = (rho_M - rho_m) // rho_step
+        return np.array([np.inf] * number_of_descriptors)
 
     descriptor = []
     for radius in range(rho_m, rho_M, rho_step):
@@ -47,7 +48,8 @@ def my_local_descriptor(I, p, rho_m, rho_M, rho_step, N):
 
 def my_local_descriptor_upgrade(I, p, rho_m, rho_M, rho_step, N):
     if is_out_of_bounds(I, p, rho_M):
-        return np.array([])
+        number_of_descriptors = (rho_M - rho_m) // rho_step
+        return np.array([np.inf] * number_of_descriptors)
 
     descriptor = []
     for radius in range(rho_m, rho_M, rho_step):
