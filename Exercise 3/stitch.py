@@ -1,3 +1,4 @@
+import multiprocessing
 import random
 import time
 
@@ -79,8 +80,8 @@ def is_corner(p, k, r_threshold, Ix, Iy):
         return False
 
     M = np.zeros((2, 2))
-    for u1 in range(-2, 3):
-        for u2 in range(-2, 3):
+    for u1 in range(-5, 5):
+        for u2 in range(-5, 5):
             Ixy = Ix[p1 + u1, p2 + u2] * Iy[p1 + u1, p2 + u2]
             A = np.array([[Ix[p1 + u1, p2 + u2] ** 2, Ixy],
                           [Ixy, Iy[p1 + u1, p2 + u2] ** 2]])
@@ -91,9 +92,14 @@ def is_corner(p, k, r_threshold, Ix, Iy):
     return r > r_threshold
 
 
+def process_corner(y, x, k, r_threshold, Ix, Iy):
+    if is_corner((y, x), k, r_threshold, Ix, Iy):
+        return y, x
+
+
 def my_detect_harris_features(I):
     k = 0.04
-    r_threshold = 0.02
+    r_threshold = 0.01
 
     I_with_corners = I.copy()
     I_with_corners = I_with_corners * 255
@@ -102,14 +108,23 @@ def my_detect_harris_features(I):
 
     Ix = np.gradient(I, axis=0)
     Iy = np.gradient(I, axis=1)
-    corners = []
     height, width = I.shape
-    for y in range(height):
-        for x in range(width):
-            if is_corner((y, x), k, r_threshold, Ix, Iy):
-                corners.append((y, x))
-                cv2.circle(I_with_corners, (x, y), 1, (255, 0, 0), 1)
+    pool = multiprocessing.Pool()
 
+    # Create a list of coordinates for all pixels
+    coordinates = [(y, x) for y in range(height) for x in range(width)]
+
+    # Map the processing function to the list of coordinates using multiple processes
+    results = pool.starmap(process_corner, [(y, x, k, r_threshold, Ix, Iy) for (y, x) in coordinates])
+
+    # Filter out None values from the results and extract the corner coordinates
+    corners = [corner for corner in results if corner is not None]
+
+    for (y, x) in corners:
+        cv2.circle(I_with_corners, (x, y), 1, (0, 255, 0), 1)
+
+    pool.close()
+    pool.join()
     cv2.imwrite(f"corners.png", I_with_corners)
     return corners
 
