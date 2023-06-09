@@ -195,8 +195,8 @@ def my_stitch(im1, im2):
         im2_data['descriptors'].append(my_local_descriptor(grey_im2, corner, rho_m, rho_M, rho_step, N))
 
     data = {'im1': im1_data, 'im2': im2_data}
-    np.save('data_with_descriptors.npy', data)
-    # data = np.load('data_with_descriptors.npy', allow_pickle=True).tolist()
+    np.save('data.npy', data)
+    # data = np.load('data.npy', allow_pickle=True).tolist()
     # im1_data = data['im1']
     # im2_data = data['im2']
     #
@@ -218,6 +218,7 @@ def my_stitch(im1, im2):
     # H, inlier_matching_points, outlier_matching_points = my_RANSAC(matching_points, r, N)
     #
     # print("theta: ", H['theta'], "d: ", H['d'])
+    stitched = 0
     return stitched
 
 
