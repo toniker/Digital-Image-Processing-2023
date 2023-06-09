@@ -68,20 +68,26 @@ def my_local_descriptor_upgrade(I, p, rho_m, rho_M, rho_step, N):
     return descriptor
 
 
-def is_corner(I, p, k, r_threshold):
+def is_corner(p, k, r_threshold, Ix, Iy):
     def w(x, y):
         sigma = 1
         return np.exp(-(x ** 2 + y ** 2) / (2 * sigma ** 2))
 
-    x1, x2 = 10, 10
-
-    cum_sum = 0.0
     p1, p2 = p
-    for u1 in range(-5, 6):
-        for u2 in range(-5, 6):
-            cum_sum += w(u1, u2) * (I[u1 + p1 + x1, u2 + p2 + x2] - I[u1 + p1, u2 + p2]) ** 2
+    if is_out_of_bounds(Ix, (p1, p2), 5):
+        return False
 
-    return cum_sum > r_threshold
+    M = np.zeros((2, 2))
+    for u1 in range(-2, 3):
+        for u2 in range(-2, 3):
+            Ixy = Ix[p1 + u1, p2 + u2] * Iy[p1 + u1, p2 + u2]
+            A = np.array([[Ix[p1 + u1, p2 + u2] ** 2, Ixy],
+                          [Ixy, Iy[p1 + u1, p2 + u2] ** 2]])
+            M += w(u1, u2) * A
+
+    r = np.linalg.det(M) - k * (np.trace(M) ** 2)
+
+    return r > r_threshold
 
 
 def my_detect_harris_features(I):
