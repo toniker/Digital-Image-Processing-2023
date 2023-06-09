@@ -113,11 +113,6 @@ def my_detect_harris_features(I):
     return corners
 
 
-def euclidean_distance(point_1, point_2):
-    difference = [point_2[0] - point_2[0], point_2[1] - point_1[1]]
-    return np.sqrt(np.sum([x ** 2 for x in difference]))
-
-
 def descriptor_matching(points_1, points_2, percentage_threshold):
     distances = np.array((len(points_1), len(points_2)))
     for index_1, point_1 in enumerate(points_1):
