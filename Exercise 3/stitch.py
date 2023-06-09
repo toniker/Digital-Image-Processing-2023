@@ -139,23 +139,25 @@ def my_stitch(im1, im2):
 
 if __name__ == "__main__":
     start_time = time.time()
-    start_time = time.time()
     im1 = cv2.imread("im1.png")
     im2 = cv2.imread("im2.png")
 
+    rho_m = 5
+    rho_M = 20
+    rho_step = 1
+    N = 8
+
     grey_im1 = cv2.cvtColor(im1, cv2.COLOR_RGB2GRAY)
-    deliverable_1 = my_local_descriptor(grey_im1, (100, 100), 5, 20, 1, 8)
-    deliverable_2_1 = my_local_descriptor(grey_im1, (200, 200), 5, 20, 1, 8)
-    deliverable_2_2 = my_local_descriptor(grey_im1, (202, 202), 5, 20, 1, 8)
+    deliverable_1 = my_local_descriptor(grey_im1, (100, 100), rho_m, rho_M, rho_step, N)
+    deliverable_2_1 = my_local_descriptor(grey_im1, (200, 200), rho_m, rho_M, rho_step, N)
+    deliverable_2_2 = my_local_descriptor(grey_im1, (202, 202), rho_m, rho_M, rho_step, N)
 
-    deliverable_1_upgrade = my_local_descriptor_upgrade(grey_im1, (100, 100), 5, 20, 1, 8)
-    deliverable_2_1_upgrade = my_local_descriptor_upgrade(grey_im1, (200, 200), 5, 20, 1, 8)
-    deliverable_2_2_upgrade = my_local_descriptor_upgrade(grey_im1, (202, 202), 5, 20, 1, 8)
+    deliverable_1_upgrade = my_local_descriptor_upgrade(grey_im1, (100, 100), rho_m, rho_M, rho_step, N)
+    deliverable_2_1_upgrade = my_local_descriptor_upgrade(grey_im1, (200, 200), rho_m, rho_M, rho_step, N)
+    deliverable_2_2_upgrade = my_local_descriptor_upgrade(grey_im1, (202, 202), rho_m, rho_M, rho_step, N)
 
-    grey_im1_float = grey_im1.astype(np.float32) / np.max(grey_im1)
-    corners = my_detect_harris_features(grey_im1_float)
-
-    # stitched_city = my_stitch(im1, im2)
+    stitched_city = my_stitch(im1, im2)
+    # cv2.imwrite("stitched_city.jpg", stitched_city)
 
     # im_forest1 = cv2.imread("imforest1.png")
     # im_forest2 = cv2.imread("imforest2.png")
