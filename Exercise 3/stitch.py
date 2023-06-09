@@ -91,23 +91,25 @@ def is_corner(p, k, r_threshold, Ix, Iy):
 
 
 def my_detect_harris_features(I):
-    k = 0.08
-    r_threshold = 2
-    corners = []
-    height, width = I.shape
-    I = cv2.copyMakeBorder(I, 15, 15, 15, 15, cv2.BORDER_CONSTANT, value=0)
+    k = 0.04
+    r_threshold = 0.02
+
     I_with_corners = I.copy()
-    I_with_corners = cv2.cvtColor(I_with_corners, cv2.COLOR_GRAY2RGB)
     I_with_corners = I_with_corners * 255
     I_with_corners = I_with_corners.astype(np.uint8)
+    I_with_corners = cv2.cvtColor(I_with_corners, cv2.COLOR_GRAY2RGB)
 
+    Ix = np.gradient(I, axis=0)
+    Iy = np.gradient(I, axis=1)
+    corners = []
+    height, width = I.shape
     for y in range(height):
         for x in range(width):
-            if is_corner(I, (y, x), k, r_threshold):
+            if is_corner((y, x), k, r_threshold, Ix, Iy):
                 corners.append((y, x))
                 cv2.circle(I_with_corners, (x, y), 1, (255, 0, 0), 1)
 
-    cv2.imwrite(f"corners_k_{k}_r_{r_threshold}.png", I_with_corners)
+    cv2.imwrite(f"corners.png", I_with_corners)
     return corners
 
 
