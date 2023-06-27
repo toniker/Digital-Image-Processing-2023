@@ -38,7 +38,7 @@ def my_local_descriptor(I, p, rho_m, rho_M, rho_step, N):
     descriptor = []
     for radius in range(rho_m, rho_M, rho_step):
         points = []
-        for angle in range(0, 360, N):
+        for angle in np.arange(0, 2 * np.pi, 2 * np.pi / N):
             xy_offset = pol2cart(radius, angle)
             point = tuple(int(sum(x)) for x in zip(p, xy_offset))
             points.append(I[point])
@@ -56,7 +56,7 @@ def my_local_descriptor_upgrade(I, p, rho_m, rho_M, rho_step, N):
     descriptor = []
     for radius in range(rho_m, rho_M, rho_step):
         points = []
-        for angle in range(0, 360, N):
+        for angle in np.arange(0, 2 * np.pi, 2 * np.pi / N):
             xy_offset = pol2cart(radius, angle)
             point = tuple(int(sum(x)) for x in zip(p, xy_offset))
             points.append(I[point])
