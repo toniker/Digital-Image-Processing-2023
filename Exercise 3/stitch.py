@@ -137,50 +137,72 @@ def descriptor_matching(points_1, points_2, percentage_threshold):
         for index_2, point_2 in enumerate(points_2):
             point_1 = np.array(point_1)
             point_2 = np.array(point_2)
-            distances[index_1, index_2] = np.linalg.norm(point_1 - point_2)
+            distances[index_1, index_2] = np.abs(np.linalg.norm(point_1 - point_2))
 
     np.save("distances.npy", distances)
     distances = np.load("distances.npy")
 
     for index_1, point_1 in enumerate(points_1):
-        minimum_value_index = np.argmin(distances[index_1])
-        matching_points.append((index_1, minimum_value_index))
+        sorted_indices = np.argsort(distances[index_1])
+        filtered_indices = sorted_indices[::int(len(sorted_indices) * percentage_threshold)]
+        for filtered_index in filtered_indices:
+            matching_points.append((index_1, filtered_index))
 
-    _matching_points = [x for x in matching_points if x[1] != 0]
-    matching_points = _matching_points
-
-    return matching_points
+    return [x for x in matching_points if x[1] != 0]
 
 
-def my_RANSAC(matching_points, r, N):
+def my_RANSAC(matching_points, r, N, im1_data, im2_data):
+    def transform_points(points, theta, d):
+        cos_theta = np.cos(theta)
+        sin_theta = np.sin(theta)
+        rotation_matrix = np.array([[cos_theta, -sin_theta],
+                                    [sin_theta, cos_theta]])
+
+        homogeneous_matrix = np.column_stack((rotation_matrix, d))
+        homogeneous_matrix = np.vstack((homogeneous_matrix, [0, 0, 1]))
+        homogeneous_points = np.column_stack((points, np.ones(len(points))))
+
+        transformed_points = np.dot(homogeneous_points, homogeneous_matrix.T)
+        transformed_points = transformed_points[:, :2] / transformed_points[:, 2:]
+        return transformed_points
+
+    def align_points(y1, x1, y2, x2):
+        x_mean = np.mean(x1, x2)
+        y_mean = np.mean(y1, y2)
+
+        y1_t, x1_t = y1 - y_mean, x1 - x_mean
+        y2_t, x2_t = y2 - y_mean, x2 - x_mean
+
+        # @TODO Use Procrustes Analysis to align the two points
+        return theta, d
+
     inlier_matching_points = []
     outlier_matching_points = []
-    theta, d = None, None
+    H = {'theta': 0, 'd': 0}
+    best_distance = np.inf
 
     for i in range(N):
-        random_points = random.sample(matching_points, 2)
-        point_1, point_2 = random_points[0], random_points[1]
+        pair_of_matching_points = random.sample(matching_points, 2)
+        point_1, point_2 = pair_of_matching_points
+        y1, x1 = im1_data['corners'][point_1]
+        y2, x2 = im2_data['corners'][point_2]
 
-        y1, x1 = point_1
-        y2, x2 = point_2
+        theta, d = align_points(y1, x1, y2, x2)
 
-        theta = np.arctan((y2 - y1) / (x2 - x1))
-        d = y1 - x1 * (y2 - y1) / (x2 - x1)
+        transformed_im1_points = transform_points(im1_data['corners'], theta, d)
+        transformed_im2_points = transform_points(im2_data['corners'], theta, d)
 
-        inlier_matching_points = []
-        outlier_matching_points = []
-        for point in matching_points:
-            y, x = point
-            distance = np.abs(y - x * np.tan(theta) - d)
-            if distance < r:
-                inlier_matching_points.append(point)
-            else:
-                outlier_matching_points.append(point)
+        distance = np.linalg.norm(transformed_im1_points - transformed_im2_points)
+        if distance < best_distance:
+            best_distance = distance
+            H['theta'] = np.rad2deg(theta)
+            H['d'] = d
 
-        if len(inlier_matching_points) > len(outlier_matching_points):
-            break
+        if distance < r:
+            inlier_matching_points.append(pair_of_matching_points)
+        else:
+            outlier_matching_points.append(pair_of_matching_points)
 
-    H = {'theta': np.rad2deg(theta), 'd': d}
     return H, inlier_matching_points, outlier_matching_points
 
 
@@ -209,30 +231,41 @@ def my_stitch(im1, im2):
 
     data = {'im1': im1_data, 'im2': im2_data}
     np.save('data.npy', data)
-    # data = np.load('data.npy', allow_pickle=True).tolist()
-    # im1_data = data['im1']
-    # im2_data = data['im2']
-    #
-    # matching_points = descriptor_matching(im1_data['descriptors'], im2_data['descriptors'], percentage_threshold=0.8)
-    #
-    # comb = cv2.imread("combined.png")
-    # np.random.shuffle(matching_points)
-    # for i in range(len(matching_points) // 20):
-    #     matching_point = matching_points[i]
-    #     index_1, index_2 = matching_point
-    #     (y1, x1) = im1_data['corners'][index_1]
-    #     (y2, x2) = im2_data['corners'][index_2]
-    #     x2 += 1360
-    #     cv2.line(comb, (x1, y1), (x2, y2), (0, 255, 0))
-    # cv2.imwrite("combined_lines.jpg", comb)
-    #
-    # r = 5
-    # N = 100
-    # H, inlier_matching_points, outlier_matching_points = my_RANSAC(matching_points, r, N)
-    #
-    # print("theta: ", H['theta'], "d: ", H['d'])
-    stitched = 0
-    return stitched
+    data = np.load('data.npy', allow_pickle=True).tolist()
+    im1_data = data['im1']
+    im2_data = data['im2']
+
+    matching_points = descriptor_matching(im1_data['descriptors'], im2_data['descriptors'], percentage_threshold=0.8)
+
+    comb = cv2.imread("combined.png")
+    np.random.shuffle(matching_points)
+    for i in range(len(matching_points) // 20):
+        matching_point = matching_points[i]
+        index_1, index_2 = matching_point
+        (y1, x1) = im1_data['corners'][index_1]
+        (y2, x2) = im2_data['corners'][index_2]
+        x2 += 1360
+        cv2.line(comb, (x1, y1), (x2, y2), (0, 255, 0))
+    cv2.imwrite("combined_lines.jpg", comb)
+
+    r = 5
+    N = 100
+    H, inlier_matching_points, outlier_matching_points = my_RANSAC(matching_points, r, N)
+
+    I_inlier = cv2.imread("combined.png")
+    for inlier in inlier_matching_points:
+        point_1, point_2 = inlier
+        y1, x1 = im1_data['corners'][point_1]
+        y2, x2 = im2_data['corners'][point_2]
+        cv2.circle(I_inlier, (x1, y1), 1, (255, 0, 0), 1)
+        cv2.circle(I_inlier, (x2, y2), 1, (255, 0, 0), 1)
+    print("theta: ", H['theta'], "d: ", H['d'])
+
+    d_x, d_y = H['d']
+    P_2 = cv2.rotate(im2, H['theta'])
+    translation_matrix = np.array([1, 0, d_x], [0, 1, d_y])
+    P_2 = cv2.warpAffine(P_2, translation_matrix, (P_2.shape[1], P_2.shape[0]))
+    return P_2
 
 
 if __name__ == "__main__":
