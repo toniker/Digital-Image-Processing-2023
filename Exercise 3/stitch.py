@@ -154,42 +154,47 @@ def my_RANSAC(matching_points, r, N, im1_data, im2_data):
         transformed_points = transformed_points[:, :2] / transformed_points[:, 2:]
         return transformed_points
 
-    def align_points(y1, x1, y2, x2):
-        x_mean = np.mean(x1, x2)
-        y_mean = np.mean(y1, y2)
-
-        y1_t, x1_t = y1 - y_mean, x1 - x_mean
-        y2_t, x2_t = y2 - y_mean, x2 - x_mean
-
-        # @TODO Use Procrustes Analysis to align the two points
-        return theta, d
-
     inlier_matching_points = []
     outlier_matching_points = []
     H = {'theta': 0, 'd': 0}
     best_distance = np.inf
+    distances = []
 
     for i in range(N):
-        pair_of_matching_points = random.sample(matching_points, 2)
-        point_1, point_2 = pair_of_matching_points
-        y1, x1 = im1_data['corners'][point_1]
-        y2, x2 = im2_data['corners'][point_2]
+        pairs_of_matching_points = random.sample(matching_points, 2)
+        pair_1, pair_2 = pairs_of_matching_points
+        im1_y1, im1_x1 = im1_data['corners'][pair_1[0]]
+        im2_y1, im2_x1 = im2_data['corners'][pair_1[1]]
+        im1_y2, im1_x2 = im1_data['corners'][pair_2[0]]
+        im2_y2, im2_x2 = im2_data['corners'][pair_2[1]]
 
-        theta, d = align_points(y1, x1, y2, x2)
+        dx = (im2_x1 - im1_x1) + (im2_x2 - im1_x2) // 2
+        dy = (im2_y1 - im1_y1) + (im2_y2 - im1_y2) // 2
 
-        transformed_im1_points = transform_points(im1_data['corners'], theta, d)
+        d = [dx, dy]
+        im1_theta = np.arctan2(im1_y1, im1_x1)
+        im2_theta = np.arctan2(im2_y1, im2_x1)
+        theta = im1_theta - im2_theta
+
+        transformed_im1_points = np.array(im1_data['corners'])
         transformed_im2_points = transform_points(im2_data['corners'], theta, d)
 
-        distance = np.linalg.norm(transformed_im1_points - transformed_im2_points)
+        number_of_points = 100000
+        random_selection = random.sample(matching_points, number_of_points)
+        im2_points = transformed_im2_points[np.array([pair[1] for pair in random_selection])]
+        im1_points = transformed_im1_points[np.array([pair[0] for pair in random_selection])]
+
+        distance = np.linalg.norm(im2_points - im1_points) // number_of_points
+        distances.append(distance)
         if distance < best_distance:
             best_distance = distance
-            H['theta'] = np.rad2deg(theta)
+            H['theta'] = theta
             H['d'] = d
 
         if distance < r:
-            inlier_matching_points.append(pair_of_matching_points)
+            inlier_matching_points.append(pairs_of_matching_points)
         else:
-            outlier_matching_points.append(pair_of_matching_points)
+            outlier_matching_points.append(pairs_of_matching_points)
 
     return H, inlier_matching_points, outlier_matching_points
 
