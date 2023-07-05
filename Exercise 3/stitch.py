@@ -228,30 +228,42 @@ def my_stitch(im1, im2):
     im1_data = data['im1']
     im2_data = data['im2']
 
-    matching_points = descriptor_matching(im1_data['descriptors'], im2_data['descriptors'], percentage_threshold=0.8)
+    grey_im1 = cv2.cvtColor(grey_im1, cv2.COLOR_GRAY2RGB)
+    for (y, x) in im1_data['corners']:
+        cv2.circle(grey_im1, (x, y), 1, (0, 255, 0), 1)
 
-    comb = cv2.imread("combined.png")
-    np.random.shuffle(matching_points)
-    for i in range(len(matching_points) // 20):
-        matching_point = matching_points[i]
-        index_1, index_2 = matching_point
-        (y1, x1) = im1_data['corners'][index_1]
-        (y2, x2) = im2_data['corners'][index_2]
-        x2 += 1360
-        cv2.line(comb, (x1, y1), (x2, y2), (0, 255, 0))
-    cv2.imwrite("combined_lines.jpg", comb)
+    cv2.imwrite(f"im1_corners.png", grey_im1)
 
-    r = 5
+    grey_im2 = cv2.cvtColor(grey_im2, cv2.COLOR_GRAY2RGB)
+    for (y, x) in im2_data['corners']:
+        cv2.circle(grey_im2, (x, y), 1, (0, 255, 0), 1)
+
+    cv2.imwrite(f"im2_corners.png", grey_im2)
+    # matching_points = descriptor_matching(im1_data['descriptors'], im2_data['descriptors'], percentage_threshold=0.05)
+    #
+    # np.save('matching_points.npy', matching_points)
+    matching_points = np.load('matching_points.npy', allow_pickle=True).tolist()
+
+    r = 3
     N = 100
-    H, inlier_matching_points, outlier_matching_points = my_RANSAC(matching_points, r, N)
+    H, inlier_matching_points, outlier_matching_points = my_RANSAC(matching_points, r, N, im1_data, im2_data)
 
-    I_inlier = cv2.imread("combined.png")
+    im1_inliers = im1
+    im2_inliers = im2
     for inlier in inlier_matching_points:
-        point_1, point_2 = inlier
-        y1, x1 = im1_data['corners'][point_1]
-        y2, x2 = im2_data['corners'][point_2]
-        cv2.circle(I_inlier, (x1, y1), 1, (255, 0, 0), 1)
-        cv2.circle(I_inlier, (x2, y2), 1, (255, 0, 0), 1)
+        pair_1, pair_2 = inlier
+        im1_y1, im1_x1 = im1_data['corners'][pair_1[0]]
+        im2_y1, im2_x1 = im2_data['corners'][pair_1[1]]
+        im1_y2, im1_x2 = im1_data['corners'][pair_2[0]]
+        im2_y2, im2_x2 = im2_data['corners'][pair_2[1]]
+
+        cv2.circle(im1_inliers, (im1_x1, im1_y1), 3, (0, 0, 255), 3)
+        cv2.circle(im1_inliers, (im1_x2, im1_y2), 3, (0, 0, 255), 3)
+        cv2.circle(im2_inliers, (im2_x1, im2_y1), 3, (0, 0, 255), 3)
+        cv2.circle(im2_inliers, (im2_x2, im2_y2), 3, (0, 0, 255), 3)
+
+    cv2.imwrite(f"im1_inliers.png", im1_inliers)
+    cv2.imwrite(f"im2_inliers.png", im2_inliers)
     print("theta: ", H['theta'], "d: ", H['d'])
 
     d_x, d_y = H['d']
