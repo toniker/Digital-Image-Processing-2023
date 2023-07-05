@@ -118,24 +118,25 @@ def my_detect_harris_features(I):
 
 def descriptor_matching(points_1, points_2, percentage_threshold):
     distances = np.empty((len(points_1), len(points_2)))
-    matching_points = []
 
     for index_1, point_1 in enumerate(points_1):
         for index_2, point_2 in enumerate(points_2):
             point_1 = np.array(point_1)
             point_2 = np.array(point_2)
-            distances[index_1, index_2] = np.abs(np.linalg.norm(point_1 - point_2))
+            distances[index_1, index_2] = np.linalg.norm(point_1 - point_2)
 
     np.save("distances.npy", distances)
     distances = np.load("distances.npy")
 
-    for index_1, point_1 in enumerate(points_1):
-        sorted_indices = np.argsort(distances[index_1])
-        filtered_indices = sorted_indices[::int(len(sorted_indices) * percentage_threshold)]
-        for filtered_index in filtered_indices:
-            matching_points.append((index_1, filtered_index))
+    matching_points = []
+    for index_1 in range(len(distances)):
+        sorted = np.argsort(distances[index_1])
+        accepted = sorted[:int(len(sorted) * percentage_threshold)]
+        filtered = accepted[np.isfinite(distances[index_1, accepted])]
+        for index_2 in filtered:
+            matching_points.append((index_1, index_2))
 
-    return [x for x in matching_points if x[1] != 0]
+    return matching_points
 
 
 def my_RANSAC(matching_points, r, N, im1_data, im2_data):
