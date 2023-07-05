@@ -70,44 +70,35 @@ def my_local_descriptor_upgrade(I, p, rho_m, rho_M, rho_step, N):
     return descriptor
 
 
-def is_corner(p, k, r_threshold, Ix, Iy):
+def is_corner(p, k, r_threshold, Ixy):
     def w(x, y):
         sigma = 1
         return np.exp(-(x ** 2 + y ** 2) / (2 * sigma ** 2))
 
     p1, p2 = p
-    if is_out_of_bounds(Ix, (p1, p2), 5):
+    if is_out_of_bounds(Ixy, (p1, p2), 2):
         return False
 
-    M = np.zeros((2, 2))
-    for u1 in range(-5, 5):
-        for u2 in range(-5, 5):
-            Ixy = Ix[p1 + u1, p2 + u2] * Iy[p1 + u1, p2 + u2]
-            A = np.array([[Ix[p1 + u1, p2 + u2] ** 2, Ixy],
-                          [Ixy, Iy[p1 + u1, p2 + u2] ** 2]])
-            M += w(u1, u2) * A
+    cumulative_sum = 0
+    for u1 in range(-2, 2):
+        for u2 in range(-2, 2):
+            cumulative_sum += w(u1, u2) * (Ixy[u1 + p1, u2 + p2]) ** 2
 
-    r = np.linalg.det(M) - k * (np.trace(M) ** 2)
-
-    return r > r_threshold
+    return cumulative_sum > r_threshold
 
 
-def process_corner(y, x, k, r_threshold, Ix, Iy):
-    if is_corner((y, x), k, r_threshold, Ix, Iy):
+def process_corner(y, x, k, r_threshold, Ixy):
+    if is_corner((y, x), k, r_threshold, Ixy):
         return y, x
 
 
 def my_detect_harris_features(I):
     k = 0.04
-    r_threshold = 0.01
+    r_threshold = 0.3
 
-    I_with_corners = I.copy()
-    I_with_corners = I_with_corners * 255
-    I_with_corners = I_with_corners.astype(np.uint8)
-    I_with_corners = cv2.cvtColor(I_with_corners, cv2.COLOR_GRAY2RGB)
-
-    Ix = np.gradient(I, axis=0)
-    Iy = np.gradient(I, axis=1)
+    Ix, Iy = np.gradient(I)
+    Ixy = Ix + Iy
+    Ixy = np.clip(Ixy, 0, 255)
     height, width = I.shape
     pool = multiprocessing.Pool()
 
@@ -115,17 +106,13 @@ def my_detect_harris_features(I):
     coordinates = [(y, x) for y in range(height) for x in range(width)]
 
     # Map the processing function to the list of coordinates using multiple processes
-    results = pool.starmap(process_corner, [(y, x, k, r_threshold, Ix, Iy) for (y, x) in coordinates])
+    results = pool.starmap(process_corner, [(y, x, k, r_threshold, Ixy) for (y, x) in coordinates])
 
     # Filter out None values from the results and extract the corner coordinates
     corners = [corner for corner in results if corner is not None]
 
-    for (y, x) in corners:
-        cv2.circle(I_with_corners, (x, y), 1, (0, 255, 0), 1)
-
     pool.close()
     pool.join()
-    cv2.imwrite(f"corners.png", I_with_corners)
     return corners
 
 
