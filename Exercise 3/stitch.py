@@ -265,12 +265,28 @@ def my_stitch(im1, im2):
     cv2.imwrite(f"im1_inliers.png", im1_inliers)
     cv2.imwrite(f"im2_inliers.png", im2_inliers)
     print("theta: ", H['theta'], "d: ", H['d'])
+    dx, dy = H['d']
+    theta = np.rad2deg(H['theta'])
 
-    d_x, d_y = H['d']
-    P_2 = cv2.rotate(im2, H['theta'])
-    translation_matrix = np.array([1, 0, d_x], [0, 1, d_y])
-    P_2 = cv2.warpAffine(P_2, translation_matrix, (P_2.shape[1], P_2.shape[0]))
-    return P_2
+    im2_center = (im2.shape[1] // 2 + dx, im2.shape[0] // 2 + dy)
+    new_width = int((im2.shape[1] + abs(dx)) * np.cos(theta) + (im2.shape[0] + abs(dy)) * np.sin(theta))
+    new_height = int((im2.shape[1] + abs(dx)) * np.sin(theta) + (im2.shape[0] + abs(dy)) * np.cos(theta))
+    rotate_matrix = cv2.getRotationMatrix2D(center=im2_center, angle=theta, scale=1)
+    transformed_im2 = cv2.warpAffine(src=im2, M=rotate_matrix, dsize=(new_width, new_height))
+
+    h, w = transformed_im2.shape[:2]
+
+    im2_alpha = np.dstack((transformed_im2, np.zeros((h, w), dtype=np.uint8) + 255))
+    mBlack = (im2_alpha[:, :, 0:3] == [0, 0, 0]).all(2)
+    im2_alpha[mBlack] = (0, 0, 0, 0)
+
+    combined_width = max(im1.shape[1], transformed_im2.shape[1] + dx)
+    combined_height = max(im1.shape[0], transformed_im2.shape[0] + dy)
+    stitched = np.zeros((combined_height, combined_width, 3), dtype=np.uint8)
+    stitched[0:im1.shape[0], 0:im1.shape[1]] = im1
+    stitched[dy:transformed_im2.shape[0] + dy, dx:transformed_im2.shape[1] + dx] = transformed_im2
+    cv2.imwrite("stitched.png", stitched)
+    return stitched
 
 
 if __name__ == "__main__":
