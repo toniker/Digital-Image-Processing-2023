@@ -170,7 +170,6 @@ def my_RANSAC(matching_points, r, N, im1_data, im2_data):
 
         dx = (im2_x1 - im1_x1) + (im2_x2 - im1_x2) // 2
         dy = (im2_y1 - im1_y1) + (im2_y2 - im1_y2) // 2
-
         d = [dx, dy]
         im1_theta = np.arctan2(im1_y1, im1_x1)
         im2_theta = np.arctan2(im2_y1, im2_x1)
@@ -248,8 +247,8 @@ def my_stitch(im1, im2):
     N = 100
     H, inlier_matching_points, outlier_matching_points = my_RANSAC(matching_points, r, N, im1_data, im2_data)
 
-    im1_inliers = im1
-    im2_inliers = im2
+    im1_inliers = im1.copy()
+    im2_inliers = im2.copy()
     for inlier in inlier_matching_points:
         pair_1, pair_2 = inlier
         im1_y1, im1_x1 = im1_data['corners'][pair_1[0]]
@@ -264,6 +263,23 @@ def my_stitch(im1, im2):
 
     cv2.imwrite(f"im1_inliers.png", im1_inliers)
     cv2.imwrite(f"im2_inliers.png", im2_inliers)
+
+    im1_outliers = im1.copy()
+    im2_outliers = im2.copy()
+    for outlier in outlier_matching_points:
+        pair_1, pair_2 = outlier
+        im1_y1, im1_x1 = im1_data['corners'][pair_1[0]]
+        im2_y1, im2_x1 = im2_data['corners'][pair_1[1]]
+        im1_y2, im1_x2 = im1_data['corners'][pair_2[0]]
+        im2_y2, im2_x2 = im2_data['corners'][pair_2[1]]
+
+        cv2.circle(im1_outliers, (im1_x1, im1_y1), 3, (255, 0, 0), 3)
+        cv2.circle(im1_outliers, (im1_x2, im1_y2), 3, (255, 0, 0), 3)
+        cv2.circle(im2_outliers, (im2_x1, im2_y1), 3, (255, 0, 0), 3)
+        cv2.circle(im2_outliers, (im2_x2, im2_y2), 3, (255, 0, 0), 3)
+
+    cv2.imwrite(f"im1_outliers.png", im1_outliers)
+    cv2.imwrite(f"im2_outliers.png", im2_outliers)
     print("theta: ", H['theta'], "d: ", H['d'])
     dx, dy = H['d']
     theta = np.rad2deg(H['theta'])
@@ -275,6 +291,12 @@ def my_stitch(im1, im2):
 
 
 def rotate_image(image, angle):
+    """
+    Rotates an image about its center by the given angle
+    :param image: The input image
+    :param angle: The angle in degrees
+    :return: The rotated image
+    """
     height, width = image.shape[:2]
     center = (width // 2, height // 2)
 
@@ -298,18 +320,46 @@ def rotate_image(image, angle):
 
 
 def my_overlay(im1, im2, dx, dy, theta):
+    """
+    Overlays two images
+    :param im1: The background image
+    :param im2: The overlay image
+    :param dx: The x translation
+    :param dy: The y translation
+    :param theta: The angle of rotation in radians
+    :return: The stitched image
+    """
     transformed_im2 = rotate_image(im2, np.rad2deg(theta))
 
-    stitched_width = max(im1.shape[1], transformed_im2.shape[1] + dx)
-    stitched_height = max(im1.shape[0], transformed_im2.shape[0] + dy)
+    stitched_width = max(im1.shape[1], transformed_im2.shape[1] + abs(dx))
+    stitched_height = max(im1.shape[0], transformed_im2.shape[0] + abs(dy))
 
-    stitched = np.zeros((stitched_height, stitched_width, 3), dtype=np.uint8)
-    stitched[:im1.shape[0], :im1.shape[1]] = im1
+    im1_origin = (0, 0)
+    im2_origin = (dy, dx)
+    if dx < 0:
+        im1_origin += (0, abs(dx))
+        im2_origin += (0, -dx)
+    if dy < 0:
+        im1_origin += (abs(dy), 0)
+        im2_origin += (-dy, 0)
 
+    translated_im2 = np.zeros((stitched_height, stitched_width, 3), dtype=np.uint8)
     for i in range(transformed_im2.shape[0]):
         for j in range(transformed_im2.shape[1]):
             if transformed_im2[i, j].any() != 0:
-                stitched[i+dy, j+dx] = transformed_im2[i, j, :3]
+                translated_im2[i + im2_origin[0], j + im2_origin[1]] = transformed_im2[i, j, :3]
+
+    stitched = np.zeros((stitched_height, stitched_width, 3), dtype=np.uint8)
+    stitched[:im1.shape[0], :im1.shape[1]] = im1
+    if dx < 0:
+        np.roll(stitched, -dx, axis=1)
+    if dy < 0:
+        np.roll(stitched, -dy, axis=0)
+
+    for i in range(translated_im2.shape[0]):
+        for j in range(translated_im2.shape[1]):
+            if translated_im2[i, j].any() != 0:
+                stitched[i, j] = translated_im2[i, j, :3]
 
     return stitched
 
@@ -334,7 +384,7 @@ if __name__ == "__main__":
     deliverable_2_2_upgrade = my_local_descriptor_upgrade(grey_im1, (202, 202), rho_m, rho_M, rho_step, N)
 
     stitched_city = my_stitch(im1, im2)
-    # cv2.imwrite("stitched_city.jpg", stitched_city)
+    cv2.imwrite("stitched_city.jpg", stitched_city)
 
     # im_forest1 = cv2.imread("imforest1.png")
     # im_forest2 = cv2.imread("imforest2.png")
