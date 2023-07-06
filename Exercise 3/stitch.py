@@ -282,7 +282,7 @@ def my_stitch(im1, im2):
     cv2.imwrite(f"im2_outliers.png", im2_outliers)
     print("theta: ", H['theta'], "d: ", H['d'])
     dx, dy = H['d']
-    theta = np.rad2deg(H['theta'])
+    theta = H['theta']
 
     stitched = my_overlay(im1, im2, dx, dy, theta)
     cv2.imwrite("stitched.png", stitched)
