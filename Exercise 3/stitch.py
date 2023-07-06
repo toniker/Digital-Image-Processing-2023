@@ -268,24 +268,49 @@ def my_stitch(im1, im2):
     dx, dy = H['d']
     theta = np.rad2deg(H['theta'])
 
-    im2_center = (im2.shape[1] // 2 + dx, im2.shape[0] // 2 + dy)
-    new_width = int((im2.shape[1] + abs(dx)) * np.cos(theta) + (im2.shape[0] + abs(dy)) * np.sin(theta))
-    new_height = int((im2.shape[1] + abs(dx)) * np.sin(theta) + (im2.shape[0] + abs(dy)) * np.cos(theta))
-    rotate_matrix = cv2.getRotationMatrix2D(center=im2_center, angle=theta, scale=1)
-    transformed_im2 = cv2.warpAffine(src=im2, M=rotate_matrix, dsize=(new_width, new_height))
-
-    h, w = transformed_im2.shape[:2]
-
-    im2_alpha = np.dstack((transformed_im2, np.zeros((h, w), dtype=np.uint8) + 255))
-    mBlack = (im2_alpha[:, :, 0:3] == [0, 0, 0]).all(2)
-    im2_alpha[mBlack] = (0, 0, 0, 0)
-
-    combined_width = max(im1.shape[1], transformed_im2.shape[1] + dx)
-    combined_height = max(im1.shape[0], transformed_im2.shape[0] + dy)
-    stitched = np.zeros((combined_height, combined_width, 3), dtype=np.uint8)
-    stitched[0:im1.shape[0], 0:im1.shape[1]] = im1
-    stitched[dy:transformed_im2.shape[0] + dy, dx:transformed_im2.shape[1] + dx] = transformed_im2
+    stitched = my_overlay(im1, im2, dx, dy, theta)
     cv2.imwrite("stitched.png", stitched)
+
+    return stitched
+
+
+def rotate_image(image, angle):
+    height, width = image.shape[:2]
+    center = (width // 2, height // 2)
+
+    # Compute the rotation matrix
+    rotation_matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
+
+    # Calculate the new bounding dimensions of the rotated image
+    abs_cos = abs(rotation_matrix[0, 0])
+    abs_sin = abs(rotation_matrix[0, 1])
+    new_width = int(height * abs_sin + width * abs_cos)
+    new_height = int(height * abs_cos + width * abs_sin)
+
+    # Adjust the rotation matrix to take into account translation
+    rotation_matrix[0, 2] += (new_width - width) / 2
+    rotation_matrix[1, 2] += (new_height - height) / 2
+
+    # Perform the actual rotation and return the rotated image
+    rotated_image = cv2.warpAffine(image, rotation_matrix, (new_width, new_height))
+
+    return rotated_image
+
+
+def my_overlay(im1, im2, dx, dy, theta):
+    transformed_im2 = rotate_image(im2, np.rad2deg(theta))
+
+    stitched_width = max(im1.shape[1], transformed_im2.shape[1] + dx)
+    stitched_height = max(im1.shape[0], transformed_im2.shape[0] + dy)
+
+    stitched = np.zeros((stitched_height, stitched_width, 3), dtype=np.uint8)
+    stitched[:im1.shape[0], :im1.shape[1]] = im1
+
+    for i in range(transformed_im2.shape[0]):
+        for j in range(transformed_im2.shape[1]):
+            if transformed_im2[i, j].any() != 0:
+                stitched[i+dy, j+dx] = transformed_im2[i, j, :3]
+
     return stitched
 
 
