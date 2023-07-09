@@ -94,7 +94,6 @@ def process_corner(y, x, k, r_threshold, Ixy):
 
 def my_detect_harris_features(I):
     k = 0.04
-    r_threshold = 0.3
 
     Ix, Iy = np.gradient(I)
     Ixy = Ix + Iy
@@ -382,12 +381,14 @@ if __name__ == "__main__":
     deliverable_2_1_upgrade = my_local_descriptor_upgrade(grey_im1, (200, 200), rho_m, rho_M, rho_step, N)
     deliverable_2_2_upgrade = my_local_descriptor_upgrade(grey_im1, (202, 202), rho_m, rho_M, rho_step, N)
 
+    r_threshold = 0.3
     stitched_city = my_stitch(im1, im2)
     cv2.imwrite("stitched_city.jpg", stitched_city)
 
     im_forest1 = cv2.imread("imforest1.png")
     im_forest2 = cv2.imread("imforest2.png")
 
+    r_threshold = 0.005
     stitched_forest = my_stitch(im_forest1, im_forest2)
     cv2.imwrite("stitched_forest.jpg", stitched_forest)
 
