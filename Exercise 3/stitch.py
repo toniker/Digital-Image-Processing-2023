@@ -125,8 +125,8 @@ def descriptor_matching(points_1, points_2, percentage_threshold):
             point_2 = np.array(point_2)
             distances[index_1, index_2] = np.linalg.norm(point_1 - point_2)
 
-    np.save("distances.npy", distances)
-    distances = np.load("distances.npy")
+    # np.save("distances.npy", distances)
+    # distances = np.load("distances.npy")
 
     matching_points = []
     for index_1 in range(len(distances)):
@@ -222,8 +222,8 @@ def my_stitch(im1, im2):
         im2_data['descriptors'].append(my_local_descriptor(grey_im2, corner, rho_m, rho_M, rho_step, N))
 
     data = {'im1': im1_data, 'im2': im2_data}
-    np.save('data.npy', data)
-    data = np.load('data.npy', allow_pickle=True).tolist()
+    # np.save('data.npy', data)
+    # data = np.load('data.npy', allow_pickle=True).tolist()
     im1_data = data['im1']
     im2_data = data['im2']
 
@@ -238,10 +238,10 @@ def my_stitch(im1, im2):
         cv2.circle(grey_im2, (x, y), 1, (0, 255, 0), 1)
 
     cv2.imwrite(f"im2_corners.png", grey_im2)
-    # matching_points = descriptor_matching(im1_data['descriptors'], im2_data['descriptors'], percentage_threshold=0.05)
-    #
+    matching_points = descriptor_matching(im1_data['descriptors'], im2_data['descriptors'], percentage_threshold=0.05)
+
     # np.save('matching_points.npy', matching_points)
-    matching_points = np.load('matching_points.npy', allow_pickle=True).tolist()
+    # matching_points = np.load('matching_points.npy', allow_pickle=True).tolist()
 
     r = 3
     N = 100
@@ -386,7 +386,10 @@ if __name__ == "__main__":
     stitched_city = my_stitch(im1, im2)
     cv2.imwrite("stitched_city.jpg", stitched_city)
 
-    # im_forest1 = cv2.imread("imforest1.png")
-    # im_forest2 = cv2.imread("imforest2.png")
-    # stitched_forest = my_stitch(im_forest1, im_forest2)
+    im_forest1 = cv2.imread("imforest1.png")
+    im_forest2 = cv2.imread("imforest2.png")
+
+    stitched_forest = my_stitch(im_forest1, im_forest2)
+    cv2.imwrite("stitched_forest.jpg", stitched_forest)
+
     print(f'Execution time: {time.time() - start_time}')
