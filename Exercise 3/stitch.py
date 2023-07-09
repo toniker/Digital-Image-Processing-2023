@@ -285,7 +285,6 @@ def my_stitch(im1, im2):
     theta = H['theta']
 
     stitched = my_overlay(im1, im2, dx, dy, theta)
-    cv2.imwrite("stitched.png", stitched)
 
     return stitched
 
