@@ -8,14 +8,9 @@ Each folder contains a self-contained exercise that serves a specific purpose ov
 
 A RAW Image converter is implemented in MATLAB, using custom debayer functions. Images using different debayering techniques are shown below.
 
-| Column1    | Column2    | Column3    | Column4    |
-|---------------- | --------------- | --------------- | --------------- |
-| Item1.1    | Item2.1    | Item3.1    | Item4.1    |
-| Column1    | Column2    | Column3    | Column4    |
-|---------------- | --------------- | --------------- | --------------- |
-| Item1.3   | Item2.3   | Item3.3   | Item4.3   |
-
-# Add images
+| Built-in MATLAB function | Custom Function |
+|---------------- | --------------- |
+| ![builtInDemosaic](https://github.com/toniker/digital-image-processing-2023/assets/39350193/9f855ef3-5a2c-4827-bd08-bccb3d7beff9)| ![linear_rggb_rgb](https://github.com/toniker/digital-image-processing-2023/assets/39350193/e61cb545-4cd0-4f06-9831-be0df31add17) |
 
 # Exercise 2
 
@@ -25,7 +20,9 @@ The next part of the process includes the detection, representation and comparis
 
 Finally, I developed an algorithm to recognize lines, words and letters in a given image. This is done by calculating the differential of the image brightness. Using the projection of this differential we can use thresholding to detect lines in the vertical axis, then words and letters in the horizontal axis.
 
-# Add images 
+| Original Text | Recognized words replaced with bounding boxes |
+|---------------- | --------------- |
+| ![text1_v3](https://github.com/toniker/digital-image-processing-2023/assets/39350193/318ce30e-c346-4c02-baef-bb6cac891ff4) | ![blank](https://github.com/toniker/digital-image-processing-2023/assets/39350193/cfbd491e-64e0-4474-9052-6eb1395228e3) |
 
 # Exercise 3
 
